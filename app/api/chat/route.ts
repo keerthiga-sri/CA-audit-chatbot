@@ -1,7 +1,7 @@
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import { memoryStore } from "@/lib/memory-store";
 import { embedQuery } from "@/lib/gemini";
-import { runLangChainAuditChat, getAuditorProfile } from "@/lib/langchain";
+import { runLangChainAuditChat, getAuditorProfile, answerFromFinancialLedger } from "@/lib/langchain";
 import { executeMeetingAction, parseMeetingIntent } from "@/lib/meeting-scheduler";
 import { apiResponse, apiError, handleCorsPreflight } from "@/lib/cors";
 import { verifyApiKeyRequest } from "@/lib/api-keys";
@@ -279,15 +279,35 @@ export async function POST(req: Request) {
     }
 
 
-    // 9) Execute Chat via LangChain RAG Pipeline
-    const reply = await runLangChainAuditChat({
-      messages,
-      clientName: client.name,
-      clientEmail: client.email,
-      financials,
-      excerpts,
-      mcpClient: null,
-    });
+    // 9) Execute Chat via LangChain RAG Pipeline with resilient ledger fallback
+    let reply = "";
+    try {
+      reply = await runLangChainAuditChat({
+        messages,
+        clientName: client.name,
+        clientEmail: client.email,
+        financials,
+        excerpts,
+        mcpClient: null,
+      });
+    } catch (runErr: any) {
+      console.warn("runLangChainAuditChat error, falling back to financial ledger engine:", runErr?.message);
+      reply = answerFromFinancialLedger({
+        question,
+        clientName: client.name,
+        financials,
+        excerpts,
+      });
+    }
+
+    if (!reply) {
+      reply = answerFromFinancialLedger({
+        question,
+        clientName: client.name,
+        financials,
+        excerpts,
+      });
+    }
 
     return apiResponse({
       success: true,
