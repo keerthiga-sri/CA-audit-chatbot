@@ -10,3 +10,15 @@ export const supabase = createClient(
   { auth: { persistSession: false } }
 );
 
+export function isSupabaseConfigured(): boolean {
+  const url = process.env.SUPABASE_URL || "";
+  const key = process.env.SUPABASE_SERVICE_KEY || "";
+  return Boolean(
+    url &&
+    key &&
+    !url.includes("placeholder-project") &&
+    !url.includes("your-project")
+  );
+}
+
+

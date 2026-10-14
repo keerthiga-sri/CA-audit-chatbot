@@ -19,11 +19,17 @@ export default function UploadPage() {
 
   async function loadClients(selectId?: string) {
     try {
-      const d = await fetch("/api/clients", {
+      const res = await fetch("/api/clients", {
         headers: { "x-api-key": DEFAULT_API_KEY },
-      }).then((r) => r.json());
-      setClients(d.clients ?? []);
-      setClientId(selectId ?? d.clients?.[0]?.id ?? "");
+      });
+      const d = await res.json();
+      const list = d.clients ?? [];
+      setClients(list);
+      if (selectId) {
+        setClientId(selectId);
+      } else if (list.length > 0) {
+        setClientId((prev) => prev || list[0].id);
+      }
     } catch (err) {
       console.error("Failed to load clients:", err);
     }
@@ -36,21 +42,29 @@ export default function UploadPage() {
     if (!name.trim()) return;
     setBusy(true);
     setStatus(null);
-    const res = await fetch("/api/clients", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": DEFAULT_API_KEY,
-      },
-      body: JSON.stringify({ name, email }),
-    });
-    const d = await res.json();
-    setBusy(false);
-    if (!res.ok) return setStatus({ kind: "err", text: d.error });
-    setName("");
-    setEmail("");
-    setStatus({ kind: "ok", text: `Added client: ${d.client.name}.` });
-    loadClients(d.client.id);
+    try {
+      const res = await fetch("/api/clients", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": DEFAULT_API_KEY,
+        },
+        body: JSON.stringify({ name: name.trim(), email: email.trim() }),
+      });
+      const d = await res.json();
+      if (!res.ok) {
+        setStatus({ kind: "err", text: d.error || "Failed to register client." });
+        return;
+      }
+      setName("");
+      setEmail("");
+      setStatus({ kind: "ok", text: `Client '${d.client?.name || name}' registered successfully.` });
+      await loadClients(d.client?.id);
+    } catch (e: any) {
+      setStatus({ kind: "err", text: e.message || "Failed to communicate with client server." });
+    } finally {
+      setBusy(false);
+    }
   }
 
   async function upload() {
@@ -112,6 +126,12 @@ export default function UploadPage() {
         Lead Auditor: <strong>CA Keerthiga Sri J.M. (FCA-084920)</strong> · J.M. & Associates
       </p>
 
+      {status && (
+        <div className={`status ${status.kind}`} style={{ marginBottom: "16px" }}>
+          {status.text}
+        </div>
+      )}
+
       <section className="card">
         <h2>1. Register New Audit Client</h2>
         <input
@@ -133,7 +153,7 @@ export default function UploadPage() {
           onClick={addClient}
           disabled={busy || !name.trim()}
         >
-          Add Client
+          {busy ? "Registering Client..." : "Add Client"}
         </button>
       </section>
 
@@ -178,8 +198,8 @@ export default function UploadPage() {
           <code>sample_documents/</code> (Excel, CSV, and Text).
         </small>
       </section>
-
-      {status && <div className={`status ${status.kind}`}>{status.text}</div>}
     </div>
   );
 }
+
+
