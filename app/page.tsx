@@ -868,6 +868,23 @@ export default function Home() {
   ]);
   const [activeToast, setActiveToast] = useState<NotificationItem | null>(null);
   const [showNotifCenter, setShowNotifCenter] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
+  const menuContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (menuContainerRef.current && !menuContainerRef.current.contains(e.target as Node)) {
+        setShowMenu(false);
+      }
+    }
+    if (showMenu) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showMenu]);
+
 
   const endRef = useRef<HTMLDivElement>(null);
   const toastTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -1526,86 +1543,135 @@ export default function Home() {
           </div>
 
           <div className="chat-head-actions">
-            {/* REST API Symbol Button */}
-            <Link
-              href="/docs"
-              className="notif-bell-btn"
-              title="REST API Documentation & Portal"
-              aria-label="REST API Documentation & Portal"
-              style={{
-                fontSize: "14px",
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                textDecoration: "none",
-                cursor: "pointer",
-              }}
-            >
-              ⚡
-            </Link>
+            <div className="three-dot-menu-wrapper" ref={menuContainerRef}>
+              <button
+                type="button"
+                className={`three-dot-trigger-btn ${showMenu ? "active" : ""}`}
+                onClick={() => setShowMenu(!showMenu)}
+                title="Options, Integrations & Notifications"
+                aria-label="Options, Integrations & Notifications"
+                aria-expanded={showMenu}
+              >
+                <span className="three-dot-icon">⋮</span>
+                {unreadCount > 0 && (
+                  <span className="three-dot-badge-pill">{unreadCount}</span>
+                )}
+              </button>
 
-            {/* API Key Symbol Button */}
-            <button
-              type="button"
-              className={`notif-bell-btn ${showApiKeyModal ? "active" : ""}`}
-              onClick={() => setShowApiKeyModal(true)}
-              title="API Key & Integration (Click to view and copy key)"
-              aria-label="API Key & Integration"
-              style={{
-                fontSize: "15px",
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                cursor: "pointer",
-              }}
-            >
-              🔑
-            </button>
+              {showMenu && (
+                <div className="three-dot-dropdown-menu" role="menu">
+                  {/* Notifications Option */}
+                  <button
+                    type="button"
+                    className="three-dot-menu-item"
+                    role="menuitem"
+                    onClick={() => {
+                      setShowNotifCenter(!showNotifCenter);
+                      setShowMenu(false);
+                      if (!showNotifCenter && unreadCount > 0) markAllRead();
+                    }}
+                  >
+                    <div className="menu-item-icon">🔔</div>
+                    <div className="menu-item-text">
+                      <div className="menu-item-title" style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                        <span>Notifications</span>
+                        {unreadCount > 0 && (
+                          <span className="menu-item-badge">{unreadCount} new</span>
+                        )}
+                      </div>
+                      <div className="menu-item-desc">
+                        {unreadCount > 0
+                          ? `${unreadCount} unread update${unreadCount > 1 ? "s" : ""}`
+                          : `${notifications.length} notification${notifications.length === 1 ? "" : "s"}`}
+                      </div>
+                    </div>
+                  </button>
 
-            {/* Combined Google Calendar & Email Connection Button (Small) */}
-            <button
-              className="header-combo-btn"
-              onClick={() => {
-                setIntegrationTab("calendar");
-                setShowIntegrationModal(true);
-              }}
-              title={`Google Calendar & Email Connections: ${calendarConfigured ? "Calendar Synced ✓" : "Calendar Needs Setup"
-                } · ${smtpConfigured ? "Email Active ✓" : "Email Needs Setup"
-                } (Click to manage)`}
-              aria-label="Google Calendar and Email Connection Settings"
-              type="button"
-            >
-              <span className="header-combo-icons">
-                <span className="header-combo-icon-cal">📅</span>
-                <span className="header-combo-icon-sep">·</span>
-                <span className="header-combo-icon-mail">✉️</span>
-              </span>
-              <span
-                className={`header-combo-dot ${calendarConfigured && smtpConfigured
-                    ? "green"
-                    : calendarConfigured || smtpConfigured
-                      ? "amber"
-                      : "red"
-                  }`}
-              />
-            </button>
+                  <div className="three-dot-menu-divider" />
 
-            {/* Notification Center Trigger Bell (Small) */}
-            <button
-              className={`notif-bell-btn ${showNotifCenter ? "active" : ""}`}
-              onClick={() => {
-                setShowNotifCenter(!showNotifCenter);
-                if (!showNotifCenter && unreadCount > 0) markAllRead();
-              }}
-              title="Open Notification Center"
-              aria-label="Notification Center"
-              type="button"
-            >
-              🔔
-              {unreadCount > 0 && (
-                <span className="notif-badge-pill">{unreadCount}</span>
+                  {/* Google Calendar & Email Sync Option */}
+                  <button
+                    type="button"
+                    className="three-dot-menu-item"
+                    role="menuitem"
+                    onClick={() => {
+                      setIntegrationTab("calendar");
+                      setShowIntegrationModal(true);
+                      setShowMenu(false);
+                    }}
+                  >
+                    <div className="menu-item-icon">📅</div>
+                    <div className="menu-item-text">
+                      <div className="menu-item-title" style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                        <span>Calendar & Email</span>
+                        <span
+                          className={`header-combo-dot ${
+                            calendarConfigured && smtpConfigured
+                              ? "green"
+                              : calendarConfigured || smtpConfigured
+                              ? "amber"
+                              : "red"
+                          }`}
+                          style={{ display: "inline-block", position: "static", transform: "none" }}
+                        />
+                      </div>
+                      <div className="menu-item-desc">
+                        {calendarConfigured ? "Calendar Synced ✓" : "Calendar Setup"} · {smtpConfigured ? "Email Active ✓" : "Email Setup"}
+                      </div>
+                    </div>
+                  </button>
+
+                  {/* API Key Modal Option */}
+                  <button
+                    type="button"
+                    className="three-dot-menu-item"
+                    role="menuitem"
+                    onClick={() => {
+                      setShowApiKeyModal(true);
+                      setShowMenu(false);
+                    }}
+                  >
+                    <div className="menu-item-icon">🔑</div>
+                    <div className="menu-item-text">
+                      <div className="menu-item-title">API Keys & Tokens</div>
+                      <div className="menu-item-desc">View and manage master API keys</div>
+                    </div>
+                  </button>
+
+                  {/* REST API Documentation Option */}
+                  <Link
+                    href="/docs"
+                    className="three-dot-menu-item"
+                    role="menuitem"
+                    onClick={() => setShowMenu(false)}
+                    style={{ textDecoration: "none", color: "inherit" }}
+                  >
+                    <div className="menu-item-icon" style={{ color: "#16a34a" }}>⚡</div>
+                    <div className="menu-item-text">
+                      <div className="menu-item-title">REST API Portal</div>
+                      <div className="menu-item-desc">Interactive endpoint tester & docs</div>
+                    </div>
+                  </Link>
+
+                  <div className="three-dot-menu-divider" />
+
+                  {/* Clients & Documents Page Option */}
+                  <Link
+                    href="/upload"
+                    className="three-dot-menu-item"
+                    role="menuitem"
+                    onClick={() => setShowMenu(false)}
+                    style={{ textDecoration: "none", color: "inherit" }}
+                  >
+                    <div className="menu-item-icon">📑</div>
+                    <div className="menu-item-text">
+                      <div className="menu-item-title">Clients & Documents</div>
+                      <div className="menu-item-desc">Upload 10-year Excel / CSV audit sheets</div>
+                    </div>
+                  </Link>
+                </div>
               )}
-            </button>
+            </div>
           </div>
         </div>
 

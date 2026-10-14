@@ -597,10 +597,181 @@ table.book-table {
   justify-content: center;
   padding: 0 3px;
   box-shadow: 0 0 0 2px #fff, 0 2px 5px rgba(217, 83, 79, 0.4);
+/* THREE-DOT CORNER MENU & INTEGRATIONS */
+.three-dot-menu-wrapper {
+  position: relative;
+  display: inline-flex;
+}
+
+.three-dot-trigger-btn {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  border: 1px solid var(--rule);
+  background: #ffffff;
+  color: var(--ink);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  padding: 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.three-dot-trigger-btn:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08);
+}
+
+.three-dot-trigger-btn.active {
+  background: #0f172a;
+  color: #ffffff;
+  border-color: #0f172a;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.2);
+}
+
+.three-dot-icon {
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -1px;
+}
+
+.three-dot-badge-pill {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 17px;
+  height: 17px;
+  border-radius: 9px;
+  background: #ef4444;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  box-shadow: 0 0 0 2px #ffffff, 0 2px 5px rgba(239, 68, 68, 0.5);
   animation: pulse-badge 2s infinite;
 }
 
+.three-dot-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 300px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.12), 0 8px 10px -6px rgba(15, 23, 42, 0.08);
+  padding: 8px;
+  z-index: 120;
+  animation: slide-in-dropdown 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+}
+
+@keyframes slide-in-dropdown {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.three-dot-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 9px;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  width: 100%;
+  text-align: left;
+  font-family: inherit;
+  transition: all 0.14s ease;
+  user-select: none;
+  box-sizing: border-box;
+}
+
+.three-dot-menu-item:hover {
+  background: #f1f5f9;
+  transform: translateX(2px);
+}
+
+.three-dot-menu-item:active {
+  background: #e2e8f0;
+}
+
+.menu-item-icon {
+  font-size: 18px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: #f8fafc;
+  flex-shrink: 0;
+  border: 1px solid #f1f5f9;
+}
+
+.three-dot-menu-item:hover .menu-item-icon {
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.menu-item-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.menu-item-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #0f172a;
+  line-height: 1.3;
+}
+
+.menu-item-desc {
+  font-size: 11px;
+  color: #64748b;
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+}
+
+.menu-item-badge {
+  background: #fee2e2;
+  color: #ef4444;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 999px;
+  margin-left: 6px;
+  border: 1px solid #fecaca;
+}
+
+.three-dot-menu-divider {
+  height: 1px;
+  background: #f1f5f9;
+  margin: 5px 4px;
+}
+
 /* TABS IN UNIFIED CALENDAR & EMAIL MODAL */
+
 .integration-tabs {
   display: flex;
   background: #f1f5f9;
