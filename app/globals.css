@@ -597,8 +597,12 @@ table.book-table {
   justify-content: center;
   padding: 0 3px;
   box-shadow: 0 0 0 2px #fff, 0 2px 5px rgba(217, 83, 79, 0.4);
+  animation: pulse-badge 2s infinite;
+}
+
 /* THREE-DOT CORNER MENU & INTEGRATIONS */
 .three-dot-menu-wrapper {
+
   position: relative;
   display: inline-flex;
 }
