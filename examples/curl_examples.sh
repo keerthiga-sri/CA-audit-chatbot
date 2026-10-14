@@ -39,7 +39,7 @@ curl -s -X GET "$BASE_URL/api/financials?clientName=Apex%20Enterprises&order=asc
 
 echo -e "\n=== 7. Direct Calendar Event Creation ==="
 curl -s -X POST "$BASE_URL/api/calendar/sync" \
-  -H "Content-Type: application/json" \
+  -H "Content-Type: appgit initlication/json" \
   $AUTH_HEADER \
   -d '{
     "topic": "Tax Due Diligence Review",
