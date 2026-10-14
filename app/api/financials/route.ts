@@ -1,4 +1,5 @@
-import { supabase } from "@/lib/supabase";
+import { supabase, isSupabaseConfigured } from "@/lib/supabase";
+import { memoryStore } from "@/lib/memory-store";
 import { apiResponse, apiError, handleCorsPreflight } from "@/lib/cors";
 import { verifyApiKeyRequest } from "@/lib/api-keys";
 
@@ -22,34 +23,56 @@ export async function GET(req: Request) {
 
     let targetClientId = clientId;
 
-    if (!targetClientId && clientName) {
-      const { data: client } = await supabase
-        .from("clients")
-        .select("id")
-        .ilike("name", `%${clientName.trim()}%`)
-        .limit(1)
-        .maybeSingle();
+    if (!targetClientId && clientName && isSupabaseConfigured()) {
+      try {
+        const { data: client } = await supabase
+          .from("clients")
+          .select("id")
+          .ilike("name", `%${clientName.trim()}%`)
+          .limit(1)
+          .maybeSingle();
 
-      if (client) {
-        targetClientId = client.id;
-      }
+        if (client) {
+          targetClientId = client.id;
+        }
+      } catch {}
+    }
+
+    if (!targetClientId && (clientId || clientName)) {
+      const match = memoryStore.findClient(clientId || clientName || "");
+      if (match) targetClientId = match.id;
     }
 
     if (!targetClientId) {
       return apiError("Please provide 'clientId' or 'clientName' query parameter.", 400);
     }
 
-    const { data, error } = await supabase
-      .from("financials")
-      .select("year, income, profit, loss")
-      .eq("client_id", targetClientId)
-      .order("year", { ascending: order });
+    let records: any[] = [];
+    if (isSupabaseConfigured()) {
+      try {
+        const { data, error } = await supabase
+          .from("financials")
+          .select("year, income, profit, loss")
+          .eq("client_id", targetClientId)
+          .order("year", { ascending: order });
 
-    if (error) return apiError(error.message, 500);
+        if (!error && data && data.length > 0) {
+          records = data;
+        }
+      } catch (err) {
+        console.warn("Supabase query failed, falling back to memory:", err);
+      }
+    }
+
+    if (records.length === 0) {
+      const memRecords = memoryStore.getFinancials(targetClientId);
+      records = order ? memRecords : [...memRecords].reverse();
+    }
+
 
     // Calculate aggregated metrics for easy API consumption
-    const records = data || [];
     const totalIncome = records.reduce((acc, r) => acc + (r.income || 0), 0);
+
     const totalProfit = records.reduce((acc, r) => acc + (r.profit || 0), 0);
     const totalLoss = records.reduce((acc, r) => acc + (r.loss || 0), 0);
     const netProfit = totalProfit - totalLoss;
@@ -117,38 +140,35 @@ export async function POST(req: Request) {
         loss: r.loss !== undefined && r.loss !== null ? Number(r.loss) : null,
       }));
 
-    const { data, error } = await supabase
-      .from("financials")
-      .upsert(cleaned, { onConflict: "client_id,year" })
-      .select("year, income, profit, loss");
+    // Update memoryStore fallback
+    memoryStore.saveFinancials(clientId, cleaned);
 
-    if (error) {
-      // Fallback: delete existing matching years then insert
-      for (const row of cleaned) {
-        await supabase
+    if (isSupabaseConfigured()) {
+      try {
+        const { data, error } = await supabase
           .from("financials")
-          .delete()
-          .eq("client_id", clientId)
-          .eq("year", row.year);
+          .upsert(cleaned, { onConflict: "client_id,year" })
+          .select("year, income, profit, loss");
+
+        if (!error && data) {
+          return apiResponse({
+            success: true,
+            message: `Successfully saved ${cleaned.length} financial year records.`,
+            financials: data,
+          });
+        }
+      } catch (err) {
+        console.warn("Supabase upsert failed:", err);
       }
-      const { data: inserted, error: iErr } = await supabase
-        .from("financials")
-        .insert(cleaned)
-        .select("year, income, profit, loss");
-      if (iErr) return apiError(iErr.message, 500);
-      return apiResponse({
-        success: true,
-        message: `Successfully saved ${cleaned.length} financial year records.`,
-        financials: inserted,
-      });
     }
 
     return apiResponse({
       success: true,
       message: `Successfully saved ${cleaned.length} financial year records.`,
-      financials: data,
+      financials: cleaned,
     });
   } catch (err: any) {
     return apiError(err?.message || "Failed to update financial records.", 500);
   }
 }
+

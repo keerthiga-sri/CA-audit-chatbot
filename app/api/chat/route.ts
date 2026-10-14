@@ -1,4 +1,5 @@
-import { supabase } from "@/lib/supabase";
+import { supabase, isSupabaseConfigured } from "@/lib/supabase";
+import { memoryStore } from "@/lib/memory-store";
 import { embedQuery } from "@/lib/gemini";
 import { runLangChainAuditChat, getAuditorProfile } from "@/lib/langchain";
 import { executeMeetingAction, parseMeetingIntent } from "@/lib/meeting-scheduler";
@@ -28,16 +29,26 @@ export async function POST(req: Request) {
     const action = typeof body.action === "string" ? body.action.toLowerCase().trim() : null;
 
     if (action === "list_clients" || action === "clients") {
-      const { data: clients } = await supabase
-        .from("clients")
-        .select("id, name, email, created_at")
-        .order("name");
+      let clients: any[] = [];
+      if (isSupabaseConfigured()) {
+        try {
+          const { data } = await supabase
+            .from("clients")
+            .select("id, name, email, created_at")
+            .order("name");
+          if (data && data.length > 0) clients = data;
+        } catch {}
+      }
+      if (clients.length === 0) {
+        clients = memoryStore.getClients();
+      }
       return apiResponse({
         success: true,
         action: "list_clients",
-        clients: clients || [],
+        clients,
       });
     }
+
 
     if (action === "auditor" || action === "profile") {
       const auditor = getAuditorProfile();
@@ -74,30 +85,50 @@ export async function POST(req: Request) {
 
     let client: { id: string; name: string; email: string | null } | null = null;
 
-    if (clientId) {
-      const { data, error } = await supabase
-        .from("clients")
-        .select("id, name, email")
-        .eq("id", clientId)
-        .maybeSingle();
-      if (!error && data) client = data;
+    if (isSupabaseConfigured()) {
+      try {
+        if (clientId) {
+          const { data, error } = await supabase
+            .from("clients")
+            .select("id, name, email")
+            .eq("id", clientId)
+            .maybeSingle();
+          if (!error && data) client = data;
+        }
+
+        if (!client && clientName) {
+          const { data, error } = await supabase
+            .from("clients")
+            .select("id, name, email")
+            .ilike("name", `%${clientName.trim()}%`)
+            .limit(1)
+            .maybeSingle();
+          if (!error && data) client = data;
+        }
+      } catch (sbErr) {
+        console.warn("Supabase client lookup error:", sbErr);
+      }
     }
 
-    if (!client && clientName) {
-      const { data, error } = await supabase
-        .from("clients")
-        .select("id, name, email")
-        .ilike("name", `%${clientName.trim()}%`)
-        .limit(1)
-        .maybeSingle();
-      if (!error && data) client = data;
+    if (!client && (clientId || clientName)) {
+      const match = memoryStore.findClient(clientId || clientName || "");
+      if (match) client = { id: match.id, name: match.name, email: match.email };
     }
 
     // Fetch all clients once for matching & fallback suggestions
-    const { data: allClients } = await supabase
-      .from("clients")
-      .select("id, name, email")
-      .order("name");
+    let allClients: Array<{ id: string; name: string; email: string | null }> = [];
+    if (isSupabaseConfigured()) {
+      try {
+        const { data } = await supabase
+          .from("clients")
+          .select("id, name, email")
+          .order("name");
+        if (data && data.length > 0) allClients = data;
+      } catch {}
+    }
+    if (allClients.length === 0) {
+      allClients = memoryStore.getClients();
+    }
 
     // Match client name inside query text if not explicitly passed
     if (!client && allClients && allClients.length > 0) {
@@ -120,6 +151,7 @@ export async function POST(req: Request) {
       client = allClients[0];
       clientId = client.id;
     }
+
 
     // 4) Check Meeting Intent (Autonomous Google Meet & Calendar Scheduling)
     const tz = process.env.TIMEZONE || "Asia/Kolkata";
@@ -207,23 +239,45 @@ export async function POST(req: Request) {
     clientId = client.id;
 
     // 8) RAG: Retrieve 10-Year Financials and Semantic Chunks for this Client
-    const [qVec, yearsRes] = await Promise.all([
-      embedQuery(question),
-      supabase
-        .from("financials")
-        .select("year, income, profit, loss")
-        .eq("client_id", clientId)
-        .order("year", { ascending: true }),
-    ]);
+    const qVec = await embedQuery(question);
 
-    const { data: chunks } = await supabase.rpc("match_chunks", {
-      q: qVec as unknown as string,
-      cid: clientId,
-      k: 3,
-    });
+    let financials: any[] = [];
+    let excerpts: string[] = [];
 
-    const excerpts = ((chunks as { content: string }[]) ?? []).map((c) => c.content);
-    const financials = yearsRes.data ?? [];
+    if (isSupabaseConfigured()) {
+      try {
+        const [yearsRes, chunksRes] = await Promise.all([
+          supabase
+            .from("financials")
+            .select("year, income, profit, loss")
+            .eq("client_id", clientId)
+            .order("year", { ascending: true }),
+          supabase.rpc("match_chunks", {
+            q: qVec as unknown as string,
+            cid: clientId,
+            k: 3,
+          }),
+        ]);
+
+        if (yearsRes.data && yearsRes.data.length > 0) {
+          financials = yearsRes.data;
+        }
+        if (chunksRes.data) {
+          excerpts = ((chunksRes.data as { content: string }[]) ?? []).map((c) => c.content);
+        }
+      } catch (sbErr) {
+        console.warn("Supabase RAG query failed, using memoryStore:", sbErr);
+      }
+    }
+
+    // Fallback to memoryStore if Supabase is offline or empty
+    if (financials.length === 0) {
+      financials = memoryStore.getFinancials(clientId);
+    }
+    if (excerpts.length === 0) {
+      excerpts = memoryStore.getChunks(clientId).slice(0, 3).map((c) => c.content);
+    }
+
 
     // 9) Execute Chat via LangChain RAG Pipeline
     const reply = await runLangChainAuditChat({

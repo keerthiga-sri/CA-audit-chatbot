@@ -81,14 +81,22 @@ export default function UploadPage() {
         body,
       });
       const d = await res.json();
-      if (!res.ok) throw new Error(d.error);
+      if (!res.ok) throw new Error(d.error || "Upload failed.");
       setStatus({
         kind: "ok",
-        text: `Successfully indexed ${d.years} years of financial figures (${d.firstYear} - ${d.lastYear}) with ${d.chunks} semantic RAG chunks under Auditor ${d.auditor}. The client ledger is updated in chat.`,
+        text: d.message || `Successfully indexed ${d.years} years of financial figures (${d.firstYear} - ${d.lastYear}) with ${d.chunks} semantic RAG chunks under Auditor ${d.auditor}. The client ledger is updated in chat.`,
       });
       setFile(null);
     } catch (e: any) {
-      setStatus({ kind: "err", text: e.message || "Upload failed." });
+      const msg = e.message || "Upload failed.";
+      if (msg.includes("fetch failed") || msg.includes("ENOTFOUND")) {
+        setStatus({
+          kind: "err",
+          text: "Cloud Database Connection Notice: SUPABASE_URL and GEMINI_API_KEY need to be configured in your Vercel Project Settings > Environment Variables.",
+        });
+      } else {
+        setStatus({ kind: "err", text: msg });
+      }
     } finally {
       setBusy(false);
     }

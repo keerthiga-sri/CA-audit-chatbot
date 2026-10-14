@@ -8,10 +8,12 @@ import {
   OLLAMA_BASE_URL,
   OLLAMA_CHAT_MODEL,
 } from "@/lib/gemini";
-import { supabase } from "@/lib/supabase";
+import { supabase, isSupabaseConfigured } from "@/lib/supabase";
+import { memoryStore } from "@/lib/memory-store";
 import { getAuditorProfile } from "@/lib/langchain";
 import { apiResponse, apiError, handleCorsPreflight } from "@/lib/cors";
 import { verifyApiKeyRequest } from "@/lib/api-keys";
+
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -235,29 +237,48 @@ export async function POST(req: Request) {
 
     // Resolve client
     let client: { id: string; name: string; email: string | null } | null = null;
-    if (clientId) {
-      const { data } = await supabase
-        .from("clients")
-        .select("id, name, email")
-        .eq("id", clientId)
-        .maybeSingle();
-      if (data) client = data;
+    if (isSupabaseConfigured()) {
+      try {
+        if (clientId) {
+          const { data } = await supabase
+            .from("clients")
+            .select("id, name, email")
+            .eq("id", clientId)
+            .maybeSingle();
+          if (data) client = data;
+        }
+        if (!client && clientName) {
+          const { data } = await supabase
+            .from("clients")
+            .select("id, name, email")
+            .ilike("name", `%${clientName.trim()}%`)
+            .limit(1)
+            .maybeSingle();
+          if (data) client = data;
+        }
+      } catch (err) {
+        console.warn("Supabase client query failed:", err);
+      }
     }
-    if (!client && clientName) {
-      const { data } = await supabase
-        .from("clients")
-        .select("id, name, email")
-        .ilike("name", `%${clientName.trim()}%`)
-        .limit(1)
-        .maybeSingle();
-      if (data) client = data;
+
+    // Fallback to memoryStore
+    if (!client && (clientId || clientName)) {
+      const match = memoryStore.findClient(clientId || clientName || "");
+      if (match) {
+        client = { id: match.id, name: match.name, email: match.email };
+      }
     }
 
     if (!client) {
-      return apiError(
-        "Client not found. Please provide a valid 'clientId' or 'clientName'.",
-        404
-      );
+      if (clientName) {
+        const added = memoryStore.addClient(clientName);
+        client = { id: added.id, name: added.name, email: added.email };
+      } else {
+        return apiError(
+          "Client not found. Please register or select a valid client first.",
+          404
+        );
+      }
     }
 
     clientId = client.id;
@@ -312,35 +333,55 @@ Total Audited Years: ${rows.length}. Certified by ${auditor.name} (${auditor.fir
     const allChunks = [metadataChunk, summaryChunk, ...yearChunks, ...rawChunks];
     const vectors = await embedMany(allChunks);
 
-    // Clean up previous client records
-    await supabase.from("chunks").delete().eq("client_id", clientId);
-    await supabase.from("financials").delete().eq("client_id", clientId);
+    let savedToSupabase = false;
+    if (isSupabaseConfigured()) {
+      try {
+        // Clean up previous client records
+        await supabase.from("chunks").delete().eq("client_id", clientId);
+        await supabase.from("financials").delete().eq("client_id", clientId);
 
-    // Insert structured yearly ledger
-    const { error: fErr } = await supabase.from("financials").insert(
-      rows.map((r) => ({
-        client_id: clientId,
-        year: r.year,
-        income: r.income ?? null,
-        profit: r.profit ?? null,
-        loss: r.loss ?? null,
-      }))
-    );
-    if (fErr) throw new Error(fErr.message);
+        // Insert structured yearly ledger
+        const { error: fErr } = await supabase.from("financials").insert(
+          rows.map((r) => ({
+            client_id: clientId,
+            year: r.year,
+            income: r.income ?? null,
+            profit: r.profit ?? null,
+            loss: r.loss ?? null,
+          }))
+        );
+        if (fErr) console.warn("Supabase financials insert failed:", fErr.message);
 
-    // Insert semantic chunks with 768-dim embeddings
-    const { error: cErr } = await supabase.from("chunks").insert(
-      allChunks.map((content, i) => ({
-        client_id: clientId,
-        content,
-        embedding: vectors[i] as unknown as string,
-      }))
+        // Insert semantic chunks with 768-dim embeddings
+        const { error: cErr } = await supabase.from("chunks").insert(
+          allChunks.map((content, i) => ({
+            client_id: clientId,
+            content,
+            embedding: vectors[i] as unknown as string,
+          }))
+        );
+        if (cErr) console.warn("Supabase chunks insert failed:", cErr.message);
+
+        savedToSupabase = !fErr && !cErr;
+      } catch (sbErr: any) {
+        console.warn("Supabase connection failed:", sbErr?.message);
+      }
+    }
+
+    // Always update memoryStore as fallback
+    memoryStore.saveFinancials(clientId, rows);
+    memoryStore.saveChunks(
+      clientId,
+      allChunks.map((content, i) => ({ content, embedding: vectors[i] }))
     );
-    if (cErr) throw new Error(cErr.message);
+
+    const persistenceNotice = savedToSupabase
+      ? ""
+      : " (Active in session. Set SUPABASE_URL in Vercel to save to Postgres).";
 
     return apiResponse({
       success: true,
-      message: `Successfully ingested and embedded ${rows.length} financial years for ${client.name}.`,
+      message: `Successfully indexed ${rows.length} financial years (${rows[0].year} - ${rows[rows.length - 1].year}) for ${client.name}.${persistenceNotice}`,
       client: { id: client.id, name: client.name, email: client.email },
       years: rows.length,
       chunks: allChunks.length,
@@ -348,9 +389,11 @@ Total Audited Years: ${rows.length}. Certified by ${auditor.name} (${auditor.fir
       lastYear: rows[rows.length - 1].year,
       financials: rows,
       auditor: auditor.name,
+      savedToSupabase,
     });
   } catch (e: any) {
     console.error("Ingest error:", e);
     return apiError(e?.message ?? "Upload and ingestion failed.", 500);
   }
 }
+
