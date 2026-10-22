@@ -1291,6 +1291,7 @@ export default function Home() {
     "What was the profit in 2021?",
     "Which year had the highest income?",
     "Did the client incur any loss in the 10 years?",
+    "Audit and score our statutory consultation call with Sri",
     "Schedule a Google Meet about the 2020 loss review tomorrow at 3 PM",
     "Update the Google meeting in Google Calendar for all participants",
     "Add participant to the scheduled Google meeting",
@@ -1543,6 +1544,28 @@ export default function Home() {
           </div>
 
           <div className="chat-head-actions">
+            <Link
+              href="/call-audit"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "6px",
+                padding: "6px 13px",
+                background: "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)",
+                color: "#ffffff",
+                borderRadius: "8px",
+                fontSize: "12.5px",
+                fontWeight: 700,
+                textDecoration: "none",
+                boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                transition: "all 0.15s ease",
+              }}
+              title="Open Call Scoring and Quality Assurance Hub"
+            >
+              <span>🎙️</span>
+              <span>Call Scoring & Audit</span>
+            </Link>
+
             <div className="three-dot-menu-wrapper" ref={menuContainerRef}>
               <button
                 type="button"
@@ -1560,6 +1583,26 @@ export default function Home() {
 
               {showMenu && (
                 <div className="three-dot-dropdown-menu" role="menu">
+                  {/* Call Scoring & QA Hub Option */}
+                  <Link
+                    href="/call-audit"
+                    className="three-dot-menu-item"
+                    role="menuitem"
+                    onClick={() => setShowMenu(false)}
+                    style={{ textDecoration: "none", color: "inherit" }}
+                  >
+                    <div className="menu-item-icon" style={{ color: "#2563eb" }}>🎙️</div>
+                    <div className="menu-item-text">
+                      <div className="menu-item-title" style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                        <span>Call Scoring & Audit Hub</span>
+                        <span style={{ fontSize: "10px", background: "#dbeafe", color: "#1e40af", padding: "1px 6px", borderRadius: "4px", fontWeight: 700 }}>NEW</span>
+                      </div>
+                      <div className="menu-item-desc">ICAI compliance, audio scoring & QA certificates</div>
+                    </div>
+                  </Link>
+
+                  <div className="three-dot-menu-divider" />
+
                   {/* Notifications Option */}
                   <button
                     type="button"

@@ -108,26 +108,47 @@ export default function UploadPage() {
         <Link className="back" href="/" style={{ margin: 0 }}>
           ← Back to Audit Chat
         </Link>
-        <Link
-          href="/docs"
-          title="REST API Documentation & Tester"
-          aria-label="REST API Documentation & Tester"
-          style={{
-            fontSize: "14px",
-            textDecoration: "none",
-            display: "inline-flex",
-            alignItems: "center",
-            justifyContent: "center",
-            width: "28px",
-            height: "28px",
-            borderRadius: "50%",
-            background: "rgba(22, 163, 74, 0.1)",
-            border: "1px solid rgba(22, 163, 74, 0.25)",
-            color: "#16a34a",
-          }}
-        >
-          ⚡
-        </Link>
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <Link
+            href="/call-audit"
+            style={{
+              fontSize: "12.5px",
+              fontWeight: 600,
+              textDecoration: "none",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "5px",
+              padding: "4px 10px",
+              borderRadius: "6px",
+              background: "#eff6ff",
+              border: "1px solid #bfdbfe",
+              color: "#1d4ed8",
+            }}
+          >
+            <span>🎙️</span>
+            <span>Call Scoring & Audit</span>
+          </Link>
+          <Link
+            href="/docs"
+            title="REST API Documentation & Tester"
+            aria-label="REST API Documentation & Tester"
+            style={{
+              fontSize: "14px",
+              textDecoration: "none",
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: "28px",
+              height: "28px",
+              borderRadius: "50%",
+              background: "rgba(22, 163, 74, 0.1)",
+              border: "1px solid rgba(22, 163, 74, 0.25)",
+              color: "#16a34a",
+            }}
+          >
+            ⚡
+          </Link>
+        </div>
       </div>
       <h1>Clients and 10-Year Audit Documents</h1>
       <p>

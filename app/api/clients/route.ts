@@ -19,8 +19,8 @@ interface ClientRecord {
 const fallbackClients: ClientRecord[] = [
   {
     id: "sample-apex-001",
-    name: "Apex Enterprises Pvt Ltd",
-    email: "finance@apexenterprises.com",
+    name: "Sri",
+    email: "sri@clientaudit.com",
     created_at: "2026-10-01T04:26:26.807Z",
     financialYearsAudited: 10,
     documentChunks: 12,
@@ -28,8 +28,8 @@ const fallbackClients: ClientRecord[] = [
   },
   {
     id: "sample-zenith-002",
-    name: "Zenith Logistics Ltd",
-    email: "audit@zenithlogistics.in",
+    name: "KS",
+    email: "audit@ks.in",
     created_at: "2026-10-05T10:00:00.000Z",
     financialYearsAudited: 10,
     documentChunks: 10,

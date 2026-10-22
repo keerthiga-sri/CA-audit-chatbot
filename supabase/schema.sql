@@ -51,10 +51,40 @@ create table if not exists api_keys (
   is_active boolean default true
 );
 
+-- Call Scoring & Quality Assurance Audits for CA Consultations
+create table if not exists call_audits (
+  id text primary key,
+  client_id uuid references clients(id) on delete set null,
+  client_name text not null,
+  auditor_name text not null,
+  call_title text not null,
+  call_date text not null,
+  call_duration_minutes int default 20,
+  audio_file_name text,
+  has_audio boolean default false,
+  overall_score int not null,
+  grade text not null,
+  compliance_status text not null,
+  executive_summary text not null,
+  transcript text not null,
+  dimensions jsonb not null default '[]'::jsonb,
+  strengths jsonb not null default '[]'::jsonb,
+  critical_risks jsonb not null default '[]'::jsonb,
+  improvement_recommendations jsonb not null default '[]'::jsonb,
+  moments jsonb not null default '[]'::jsonb,
+  action_items jsonb not null default '[]'::jsonb,
+  ca_partner_sign_off jsonb not null default '{}'::jsonb,
+  created_at timestamptz default now()
+);
+
+create index if not exists call_audits_client_idx on call_audits (client_name);
+create index if not exists call_audits_grade_idx on call_audits (grade);
+
 -- The app talks to Supabase from the server with the service key, so lock
 -- the tables against direct public access.
 alter table clients enable row level security;
 alter table financials enable row level security;
 alter table chunks enable row level security;
 alter table api_keys enable row level security;
+alter table call_audits enable row level security;
 

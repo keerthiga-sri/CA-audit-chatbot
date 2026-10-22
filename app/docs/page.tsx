@@ -58,6 +58,49 @@ const ENDPOINTS: EndpointDef[] = [
     },
   },
   {
+    id: "call-audit-eval",
+    name: "Evaluate Consultation Call (Audio or Transcript)",
+    method: "POST",
+    path: "/api/call-audit/evaluate",
+    category: "Call QA & Scoring",
+    description:
+      "Performs deep compliance and quality scoring on auditor-client consultation calls. Evaluates against ICAI Code of Ethics, Companies Act 2013 Section 143, CARO 2020, numerical ledger consistency, and follow-up discipline. Supports raw text transcripts or audio uploads with automatic Gemini speech-to-text transcription.",
+    useCase: "Quality assurance audits, auditor coaching, statutory compliance certification, and client consultation recording evaluations.",
+    sampleBody: {
+      clientName: "Apex Enterprises Pvt Ltd",
+      auditorName: "CA Keerthiga Sri J.M.",
+      callTitle: "FY 2023-24 Statutory Audit Review & Balance Sheet Finalization",
+      callDate: "2026-10-20",
+      callDurationMinutes: 28,
+      transcript:
+        "[00:00] Auditor (CA Keerthiga Sri): Good morning, Mr. Palani. I am CA Keerthiga Sri J.M., Senior Partner at J.M. & Associates. We are reviewing your 10-year financials today under ICAI confidentiality standards.\n[00:40] Client: Good morning. We reviewed the numbers.\n[01:10] Auditor: Your revenue climbed from ₹2.84 Cr in FY 2021 to ₹5.28 Cr in FY 2024 with ₹79L profit. Please submit the receivables reconciliation by Thursday so we can issue the Form 3CD report and hold our final Google Meet on Monday.\n[02:00] Client: Agreed, our accounts manager will send the documents.",
+    },
+  },
+  {
+    id: "call-audit-list",
+    name: "List Call Audits & QA Metrics",
+    method: "GET",
+    path: "/api/call-audit",
+    category: "Call QA & Scoring",
+    description:
+      "Fetches the log of evaluated consultation calls, average quality scores, statutory compliance pass rates, risk flags, and grade distributions.",
+    useCase: "Populate compliance dashboards, partner oversight portals, and audit committee quality logs.",
+    sampleQuery: {
+      clientName: "Apex",
+      grade: "A+",
+    },
+  },
+  {
+    id: "call-audit-samples",
+    name: "Get Pre-Loaded Consultation Samples & Rubric",
+    method: "GET",
+    path: "/api/call-audit/sample",
+    category: "Call QA & Scoring",
+    description:
+      "Returns curated sample consultation calls (Exemplary, Discrepancy Query, Flagged Risk) along with the official 5-dimensional ICAI consultation rubric definition.",
+    useCase: "Test scoring pipelines, train auditors, and preview QA benchmarks.",
+  },
+  {
     id: "ingest-json",
     name: "Ingest Document / Financial Data",
     method: "POST",

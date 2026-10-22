@@ -107,6 +107,9 @@ The entire project is exposed as an open, CORS-enabled REST API with OpenAPI 3.0
 
 ### Core Endpoints:
 - `POST /api/chat` - RAG audit queries, financial answers, and Google Meet scheduling
+- `POST /api/call-audit/evaluate` - Deep ICAI compliance scoring for consultations (audio or transcript)
+- `GET /api/call-audit` - List consultation audit reports, pass rates, and quality metrics
+- `GET /api/call-audit/sample` - Pre-loaded consultation samples and standard ICAI 5-dim rubric
 - `POST /api/ingest` - Ingest financial documents (PDF, Excel, CSV, TXT) or raw JSON rows
 - `GET /api/clients` - List clients with document status (`?stats=true`)
 - `POST /api/clients` - Register a new client
@@ -120,20 +123,16 @@ The entire project is exposed as an open, CORS-enabled REST API with OpenAPI 3.0
 ## Project layout
 
 ```
-app/page.tsx              chat screen with the client's 10-year ledger
+app/page.tsx              chat screen with client's 10-year ledger & voice interaction
+app/call-audit/page.tsx   Call Scoring & Audit Hub (audio/transcript scoring, ICAI rubric, certificates)
 app/docs/page.tsx         Interactive REST API Portal & live tester
 app/upload/page.tsx       add clients and upload documents
+app/api/call-audit        call scoring, evaluations, and compliance metrics API
 app/api/chat/route.ts     RAG + LangChain + Meeting scheduling API
 app/api/ingest/route.ts   read document, extract yearly figures, embed, store
 app/api/clients           list, create, get, delete audit clients
 app/api/financials        query and upsert 10-year ledgers
 app/api/calendar/sync     Google Calendar / Meet synchronization
-app/api/openapi.json      OpenAPI 3.0 specification endpoint
-app/api/postman.json      Postman collection export endpoint
-lib/cors.ts               CORS headers and API authentication helpers
-sdk/ca-audit-client.ts    Universal TypeScript / JavaScript SDK
-examples/python_client.py Python requests client integration
-examples/curl_examples.sh Shell cURL examples
-API_DOCUMENTATION.md      Comprehensive API integration and sharing guide
+lib/call-audit.ts         ICAI evaluation models, standard rubric, and heuristic fallbacks
 ```
 
