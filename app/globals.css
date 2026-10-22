@@ -796,6 +796,8 @@ table.book-table {
   border-bottom: 1px solid #e2e8f0;
   padding: 8px 16px 0;
   gap: 8px;
+  flex-shrink: 0;
+  overflow-x: auto;
 }
 .integration-tab-btn {
   background: transparent;
@@ -1661,6 +1663,7 @@ table.book-table {
   z-index: 200;
   padding: 16px;
   animation: fade-in-modal 0.15s ease-out;
+  overflow-y: auto;
 }
 
 @keyframes fade-in-modal {
@@ -1674,9 +1677,14 @@ table.book-table {
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.2);
   width: 100%;
   max-width: 520px;
+  max-height: min(90vh, 780px);
+  max-height: min(90dvh, 780px);
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
   border: 1px solid #d1dcd0;
   animation: scale-in-modal 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  margin: auto;
 }
 
 @keyframes scale-in-modal {
@@ -1691,6 +1699,7 @@ table.book-table {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-shrink: 0;
 }
 .email-modal-header h3 {
   font-size: 15px;
@@ -1720,6 +1729,25 @@ table.book-table {
   display: flex;
   flex-direction: column;
   gap: 14px;
+  overflow-y: auto;
+  flex: 1 1 auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.email-modal-body::-webkit-scrollbar {
+  width: 6px;
+}
+.email-modal-body::-webkit-scrollbar-track {
+  background: #f8fafc;
+  border-radius: 4px;
+}
+.email-modal-body::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+.email-modal-body::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
 
 .email-modal-desc {
@@ -1806,6 +1834,7 @@ table.book-table {
   justify-content: flex-end;
   gap: 10px;
   margin-top: 6px;
+  flex-shrink: 0;
 }
 .email-save-btn {
   background: #1e7e4a;
