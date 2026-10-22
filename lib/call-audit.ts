@@ -86,7 +86,7 @@ export const DEFAULT_CA_RUBRIC = [
   {
     id: "statutoryCompliance",
     name: "Statutory & Regulatory Compliance (ICAI Standards)",
-    weight: 25,
+    weight: 40,
     description:
       "Adherence to ICAI Code of Ethics, Companies Act 2013 disclosures, Income Tax Act provisions, confidentiality, and explicit provisional vs finalized disclaimers.",
     criteria: [
@@ -99,7 +99,7 @@ export const DEFAULT_CA_RUBRIC = [
   {
     id: "financialAccuracy",
     name: "Financial & Ledger Verification Accuracy",
-    weight: 25,
+    weight: 40,
     description:
       "Mathematical accuracy, verification against 10-year audited records, exact figure citations (income, profit, loss, depreciation), and reconciliation queries.",
     criteria: [
@@ -110,35 +110,9 @@ export const DEFAULT_CA_RUBRIC = [
     ],
   },
   {
-    id: "professionalEtiquette",
-    name: "Professional Conduct & Communication Clarity",
-    weight: 20,
-    description:
-      "Professional opening, respectful tone, active listening, clear explanations for non-financial stakeholders, and structured discussion pacing.",
-    criteria: [
-      "Polite, formal greeting with auditor name, firm affiliation, and agenda",
-      "Active listening without interrupting client explanations of business nuances",
-      "Avoided obscure audit jargon when explaining obligations to client management",
-      "Maintained an authoritative yet constructive, collaborative advisory tone",
-    ],
-  },
-  {
-    id: "actionableResolution",
-    name: "Action Items & Follow-up Discipline",
-    weight: 20,
-    description:
-      "Concrete next steps, documentation requirements, submission deadlines, and scheduled follow-up consultations or Google Meet reviews.",
-    criteria: [
-      "Documented concrete list of pending vouchers, certificates, or ledgers needed",
-      "Agreed upon explicit submission deadlines with the client team",
-      "Scheduled a follow-up consultation or Google Meet session to review final drafts",
-      "Summarized agreed decisions and action owners before concluding the call",
-    ],
-  },
-  {
     id: "riskDetection",
     name: "Risk, Red Flag & Anomaly Detection",
-    weight: 10,
+    weight: 20,
     description:
       "Proactive identification of unusual transaction patterns, revenue anomalies, inventory valuation risks, or undisclosed liabilities.",
     criteria: [
@@ -207,12 +181,10 @@ You are conducting a strict, thorough, and constructive Call Quality Assurance &
 The call topic is: "${callTitle}".
 Call Duration: ~${callDurationMinutes} minutes.
 
-Evaluate the transcript against the 5 ICAI Consultation Quality Dimensions:
-1. "statutoryCompliance" (Weight: 25%): Adherence to ICAI Code of Ethics, client confidentiality, explicit disclaimers (verbal advice is subject to certified audit report), refusal to validate non-compliant tax maneuvers, statutory references.
-2. "financialAccuracy" (Weight: 25%): Consistency with audited financial ledgers, exact figure citations, discrepancy investigation, reconciliation scrutiny.
-3. "professionalEtiquette" (Weight: 20%): Professional greeting, respectful tone, active listening, clarity, avoiding unnecessary jargon, proper closing.
-4. "actionableResolution" (Weight: 20%): Concrete document checklist, clear submission deadlines, follow-up meeting scheduled (Google Meet / calendar), clear ownership.
-5. "riskDetection" (Weight: 10%): Identifying unusual anomalies, revenue spikes, unvouched expenses, tax penalties, red flags.
+Evaluate the transcript against the 3 ICAI Consultation Quality Dimensions:
+1. "statutoryCompliance" (Weight: 40%): Adherence to ICAI Code of Ethics, client confidentiality, explicit disclaimers (verbal advice is subject to certified audit report), refusal to validate non-compliant tax maneuvers, statutory references.
+2. "financialAccuracy" (Weight: 40%): Consistency with audited financial ledgers, exact figure citations, discrepancy investigation, reconciliation scrutiny.
+3. "riskDetection" (Weight: 20%): Identifying unusual anomalies, revenue spikes, unvouched expenses, tax penalties, red flags.
 
 CRITICAL INSTRUCTION: Return ONLY a valid JSON object matching this exact structure with NO markdown fences, no preamble, and no explanation.
 
@@ -226,7 +198,7 @@ JSON Schema:
     {
       "id": "statutoryCompliance",
       "name": "Statutory & Regulatory Compliance (ICAI Standards)",
-      "weight": 25,
+      "weight": 40,
       "score": <integer 0-100>,
       "status": <"PASS" | "WARN" | "FAIL">,
       "feedback": "<detailed assessment>",
@@ -257,7 +229,7 @@ JSON Schema:
     {
       "id": "financialAccuracy",
       "name": "Financial & Ledger Verification Accuracy",
-      "weight": 25,
+      "weight": 40,
       "score": <integer 0-100>,
       "status": <"PASS" | "WARN" | "FAIL">,
       "feedback": "<detailed assessment>",
@@ -286,71 +258,9 @@ JSON Schema:
       ]
     },
     {
-      "id": "professionalEtiquette",
-      "name": "Professional Conduct & Communication Clarity",
-      "weight": 20,
-      "score": <integer 0-100>,
-      "status": <"PASS" | "WARN" | "FAIL">,
-      "feedback": "<detailed assessment>",
-      "keyObservations": ["<observation 1>", "<observation 2>"],
-      "criteriaChecks": [
-        {
-          "criterion": "Polite, formal greeting with auditor name, firm affiliation, and agenda",
-          "passed": <boolean>,
-          "evidence": "<evidence>"
-        },
-        {
-          "criterion": "Active listening without interrupting client explanations of business nuances",
-          "passed": <boolean>,
-          "evidence": "<evidence>"
-        },
-        {
-          "criterion": "Avoided obscure audit jargon when explaining obligations to client management",
-          "passed": <boolean>,
-          "evidence": "<evidence>"
-        },
-        {
-          "criterion": "Maintained an authoritative yet constructive, collaborative advisory tone",
-          "passed": <boolean>,
-          "evidence": "<evidence>"
-        }
-      ]
-    },
-    {
-      "id": "actionableResolution",
-      "name": "Action Items & Follow-up Discipline",
-      "weight": 20,
-      "score": <integer 0-100>,
-      "status": <"PASS" | "WARN" | "FAIL">,
-      "feedback": "<detailed assessment>",
-      "keyObservations": ["<observation 1>", "<observation 2>"],
-      "criteriaChecks": [
-        {
-          "criterion": "Documented concrete list of pending vouchers, certificates, or ledgers needed",
-          "passed": <boolean>,
-          "evidence": "<evidence>"
-        },
-        {
-          "criterion": "Agreed upon explicit submission deadlines with the client team",
-          "passed": <boolean>,
-          "evidence": "<evidence>"
-        },
-        {
-          "criterion": "Scheduled a follow-up consultation or Google Meet session to review final drafts",
-          "passed": <boolean>,
-          "evidence": "<evidence>"
-        },
-        {
-          "criterion": "Summarized agreed decisions and action owners before concluding the call",
-          "passed": <boolean>,
-          "evidence": "<evidence>"
-        }
-      ]
-    },
-    {
       "id": "riskDetection",
       "name": "Risk, Red Flag & Anomaly Detection",
-      "weight": 10,
+      "weight": 20,
       "score": <integer 0-100>,
       "status": <"PASS" | "WARN" | "FAIL">,
       "feedback": "<detailed assessment>",
@@ -440,9 +350,11 @@ ${transcript}
 
     // Validate and recompute weights & status accurately
     let computedOverallScore = 0;
-    const validatedDimensions: CallAuditDimensionScore[] = (parsed.dimensions || []).map((d: any) => {
+    const validatedDimensions: CallAuditDimensionScore[] = (parsed.dimensions || [])
+      .filter((d: any) => d.id !== "professionalEtiquette" && d.id !== "actionableResolution")
+      .map((d: any) => {
       const rubricMatch = DEFAULT_CA_RUBRIC.find((r) => r.id === d.id);
-      const weight = rubricMatch ? rubricMatch.weight : Number(d.weight) || 20;
+      const weight = rubricMatch ? rubricMatch.weight : Number(d.weight) || 40;
       const rawScore = Math.max(0, Math.min(100, Math.round(Number(d.score) || 75)));
       const weightedScore = Number(((rawScore * weight) / 100).toFixed(1));
       computedOverallScore += weightedScore;
@@ -590,12 +502,10 @@ export function generateFallbackEvaluation(params: {
   const clamp = (n: number) => Math.max(45, Math.min(98, Math.round(n)));
   compScore = clamp(compScore);
   finScore = clamp(finScore);
-  etiScore = clamp(etiScore);
-  actScore = clamp(actScore);
   riskScore = clamp(riskScore);
 
   const overallScore = Math.round(
-    compScore * 0.25 + finScore * 0.25 + etiScore * 0.2 + actScore * 0.2 + riskScore * 0.1
+    compScore * 0.4 + finScore * 0.4 + riskScore * 0.2
   );
 
   const grade = calculateGrade(overallScore);
@@ -609,9 +519,9 @@ export function generateFallbackEvaluation(params: {
     {
       id: "statutoryCompliance",
       name: "Statutory & Regulatory Compliance (ICAI Standards)",
-      weight: 25,
+      weight: 40,
       score: compScore,
-      weightedScore: Number(((compScore * 25) / 100).toFixed(1)),
+      weightedScore: Number(((compScore * 40) / 100).toFixed(1)),
       status: compScore >= 75 ? "PASS" : compScore >= 60 ? "WARN" : "FAIL",
       feedback:
         compScore >= 80
@@ -647,9 +557,9 @@ export function generateFallbackEvaluation(params: {
     {
       id: "financialAccuracy",
       name: "Financial & Ledger Verification Accuracy",
-      weight: 25,
+      weight: 40,
       score: finScore,
-      weightedScore: Number(((finScore * 25) / 100).toFixed(1)),
+      weightedScore: Number(((finScore * 40) / 100).toFixed(1)),
       status: finScore >= 75 ? "PASS" : finScore >= 60 ? "WARN" : "FAIL",
       feedback:
         finScore >= 80
@@ -683,81 +593,11 @@ export function generateFallbackEvaluation(params: {
       ],
     },
     {
-      id: "professionalEtiquette",
-      name: "Professional Conduct & Communication Clarity",
-      weight: 20,
-      score: etiScore,
-      weightedScore: Number(((etiScore * 20) / 100).toFixed(1)),
-      status: etiScore >= 75 ? "PASS" : etiScore >= 60 ? "WARN" : "FAIL",
-      feedback: "Courteous, articulate communication with appropriate advisory decorum.",
-      keyObservations: [
-        "Auditor communicated key points clearly without over-complication.",
-        "Constructive atmosphere maintained throughout client dialogue.",
-      ],
-      criteriaChecks: [
-        {
-          criterion: "Polite, formal greeting with auditor name, firm affiliation, and agenda",
-          passed: hasGreeting,
-          evidence: hasGreeting ? "Professional opening observed." : "Include firm name in introductory greeting.",
-        },
-        {
-          criterion: "Active listening without interrupting client explanations of business nuances",
-          passed: true,
-          evidence: "Auditor provided adequate space for client response.",
-        },
-        {
-          criterion: "Avoided obscure audit jargon when explaining obligations to client management",
-          passed: true,
-          evidence: "Language accessible to business executives.",
-        },
-        {
-          criterion: "Maintained an authoritative yet constructive, collaborative advisory tone",
-          passed: true,
-          evidence: "Advisory decorum sustained.",
-        },
-      ],
-    },
-    {
-      id: "actionableResolution",
-      name: "Action Items & Follow-up Discipline",
-      weight: 20,
-      score: actScore,
-      weightedScore: Number(((actScore * 20) / 100).toFixed(1)),
-      status: actScore >= 75 ? "PASS" : actScore >= 60 ? "WARN" : "FAIL",
-      feedback: "Specific deliverables identified with follow-up milestones.",
-      keyObservations: [
-        "Outstanding documentation items listed.",
-        "Timeline for audit sign-off established.",
-      ],
-      criteriaChecks: [
-        {
-          criterion: "Documented concrete list of pending vouchers, certificates, or ledgers needed",
-          passed: mentionsActionItems,
-          evidence: "Checklist of pending records noted.",
-        },
-        {
-          criterion: "Agreed upon explicit submission deadlines with the client team",
-          passed: true,
-          evidence: "Timelines communicated.",
-        },
-        {
-          criterion: "Scheduled a follow-up consultation or Google Meet session to review final drafts",
-          passed: text.includes("meet") || text.includes("calendar"),
-          evidence: text.includes("meet") ? "Google Meet consultation planned." : "Schedule follow-up Google Meet session.",
-        },
-        {
-          criterion: "Summarized agreed decisions and action owners before concluding the call",
-          passed: true,
-          evidence: "Deliverables assigned to client finance team.",
-        },
-      ],
-    },
-    {
       id: "riskDetection",
       name: "Risk, Red Flag & Anomaly Detection",
-      weight: 10,
+      weight: 20,
       score: riskScore,
-      weightedScore: Number(((riskScore * 10) / 100).toFixed(1)),
+      weightedScore: Number(((riskScore * 20) / 100).toFixed(1)),
       status: riskScore >= 75 ? "PASS" : riskScore >= 60 ? "WARN" : "FAIL",
       feedback: "Identified and isolated areas requiring audit trail substantiation.",
       keyObservations: [
@@ -866,8 +706,8 @@ export const SAMPLE_CONSULTATION_CALLS = [
     expectedGrade: "A+",
     expectedScore: 94,
     description: "Exemplary consultation: strict ICAI ethics, 10-year ledger verification (₹5.28 Cr revenue, ₹79 Lakh profit), clear Form 3CD deadlines, Google Meet scheduling.",
-    transcript: `[00:00] Auditor (CA Keerthiga Sri): Good morning, Mr. Palani. I am CA Keerthiga Sri J.M., Senior Partner at J.M. & Associates. Thank you for joining our scheduled statutory audit consultation for Sri.
-[00:25] Client (Mr. Palani): Good morning, CA Keerthiga. Pleased to speak with you.
+    transcript: `[00:00] Auditor (CA Keerthiga Sri): Good morning, Sara. I am CA Keerthiga Sri J.M., Senior Partner at J.M. & Associates. Thank you for joining our scheduled statutory audit consultation for Sri.
+[00:25] Client (Sara): Good morning, CA Keerthiga. Pleased to speak with you.
 [00:32] Auditor: Before we begin, please note that this call is governed by ICAI confidentiality standards. Our discussion today covers our preliminary audit review of your 10-year financials leading into FY 2023-24. Verbal determinations made today are draft observations subject to our final certified audit report.
 [01:05] Client: Understood and completely agreed.
 [01:10] Auditor: Excellent. Examining your 10-year financial records, Sri has demonstrated impressive recovery. Following the ₹9.5 Lakh loss incurred in FY 2020, your revenue has climbed steadily from ₹2.84 Crores in FY 2021 to ₹5.28 Crores in FY 2024, with net profit reaching ₹79 Lakhs.
@@ -878,7 +718,7 @@ export const SAMPLE_CONSULTATION_CALLS = [
 [04:30] Client: Yes, absolutely. I will personally ensure our CFO emails them before Thursday 5 PM.
 [04:45] Auditor: Wonderful. Once received, our team will complete the Form 3CD tax audit annexures and prepare the final Independent Auditor's Report. I will also schedule a 30-minute Google Meet consultation for next Monday at 3:00 PM with all directors to review the final certified draft before filing with MCA.
 [05:20] Client: That sounds great. Please send the Google Calendar invite with the Meet link to sri@clientaudit.com.
-[05:35] Auditor: Will do immediately through Audit Desk. To recap our action items: Sri will submit the ₹4.2 Lakh receivables reconciliation, machinery invoices, and depreciation schedule by Thursday 5 PM; J.M. & Associates will issue the CARO 2020 workpapers and host our Google Meet review on Monday. Thank you for your cooperation, Mr. Palani.
+[05:35] Auditor: Will do immediately through Audit Desk. To recap our action items: Sri will submit the ₹4.2 Lakh receivables reconciliation, machinery invoices, and depreciation schedule by Thursday 5 PM; J.M. & Associates will issue the CARO 2020 workpapers and host our Google Meet review on Monday. Thank you for your cooperation, Sara.
 [06:05] Client: Thank you very much, CA Keerthiga. Have a great day.`,
   },
   {

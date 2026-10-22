@@ -73,7 +73,7 @@ const ENDPOINTS: EndpointDef[] = [
       callDate: "2026-10-20",
       callDurationMinutes: 28,
       transcript:
-        "[00:00] Auditor (CA Keerthiga Sri): Good morning, Mr. Palani. I am CA Keerthiga Sri J.M., Senior Partner at J.M. & Associates. We are reviewing your 10-year financials today under ICAI confidentiality standards.\n[00:40] Client: Good morning. We reviewed the numbers.\n[01:10] Auditor: Your revenue climbed from ₹2.84 Cr in FY 2021 to ₹5.28 Cr in FY 2024 with ₹79L profit. Please submit the receivables reconciliation by Thursday so we can issue the Form 3CD report and hold our final Google Meet on Monday.\n[02:00] Client: Agreed, our accounts manager will send the documents.",
+        "[00:00] Auditor (CA Keerthiga Sri): Good morning, Sara. I am CA Keerthiga Sri J.M., Senior Partner at J.M. & Associates. We are reviewing your 10-year financials today under ICAI confidentiality standards.\n[00:40] Client: Good morning. We reviewed the numbers.\n[01:10] Auditor: Your revenue climbed from ₹2.84 Cr in FY 2021 to ₹5.28 Cr in FY 2024 with ₹79L profit. Please submit the receivables reconciliation by Thursday so we can issue the Form 3CD report and hold our final Google Meet on Monday.\n[02:00] Client: Agreed, our accounts manager will send the documents.",
     },
   },
   {

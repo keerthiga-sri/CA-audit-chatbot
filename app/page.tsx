@@ -1562,7 +1562,6 @@ export default function Home() {
               }}
               title="Open Call Scoring and Quality Assurance Hub"
             >
-              <span>🎙️</span>
               <span>Call Scoring & Audit</span>
             </Link>
 

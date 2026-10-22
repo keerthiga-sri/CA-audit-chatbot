@@ -266,14 +266,14 @@ const memoryCallAudits: any[] = [
     executiveSummary:
       "Exemplary consultation adherence to ICAI Code of Ethics and Companies Act 2013 standards. CA Keerthiga Sri rigorously verified 10-year ledger trends for client Sri, confirmed FY 2024 revenue (₹5.28 Cr) and profit (₹79 L), and enforced strict Form 3CD submission deadlines with Google Meet scheduling.",
     transcript:
-      "[00:00] Auditor (CA Keerthiga Sri): Good morning, Mr. Palani. I am CA Keerthiga Sri J.M., Senior Partner at J.M. & Associates. Thank you for joining our scheduled statutory audit consultation for Sri.\n[00:25] Client (Mr. Palani): Good morning, CA Keerthiga. Pleased to speak with you.\n[00:32] Auditor: Before we begin, please note that this call is governed by ICAI confidentiality standards. Our discussion today covers our preliminary audit review of your 10-year financials leading into FY 2023-24. Verbal determinations made today are draft observations subject to our final certified audit report.\n[01:05] Client: Understood and completely agreed.\n[01:10] Auditor: Excellent. Examining your 10-year financial records, Sri has demonstrated impressive recovery. Following the ₹9.5 Lakh loss incurred in FY 2020, your revenue has climbed steadily from ₹2.84 Crores in FY 2021 to ₹5.28 Crores in FY 2024, with net profit reaching ₹79 Lakhs.\n[02:15] Client: Yes, our export orders picked up significantly over the last three years.\n[02:24] Auditor: That aligns with our sample testing of your export ledgers. However, during our verification under Section 143 of the Companies Act 2013, we noted two specific reconciliation items. First, there is a ₹4.2 Lakh timing difference in trade receivables under aging beyond 180 days. Second, we require the updated depreciation schedule for plant and machinery acquired in Q3 FY 2024 to verify deductions claimed under Section 32 of the Income Tax Act.\n[03:40] Client: We have the invoices for the machinery installed in November. Our accounts manager can send the fixed asset register and invoice copies today.\n[04:00] Auditor: Perfect. Under CARO 2020 requirements, we must verify physical asset tags against the asset register. Can your accounts team email the signed depreciation schedule and bank confirmation statements by Thursday, 5:00 PM?\n[04:30] Client: Yes, absolutely. I will personally ensure our CFO emails them before Thursday 5 PM.\n[04:45] Auditor: Wonderful. Once received, our team will complete the Form 3CD tax audit annexures and prepare the final Independent Auditor's Report. I will also schedule a 30-minute Google Meet consultation for next Monday at 3:00 PM with all directors to review the final certified draft before filing with MCA.\n[05:20] Client: That sounds great. Please send the Google Calendar invite with the Meet link to sri@clientaudit.com.\n[05:35] Auditor: Will do immediately through Audit Desk. To recap our action items: Sri will submit the ₹4.2 Lakh receivables reconciliation, machinery invoices, and depreciation schedule by Thursday 5 PM; J.M. & Associates will issue the CARO 2020 workpapers and host our Google Meet review on Monday. Thank you for your cooperation, Mr. Palani.\n[06:05] Client: Thank you very much, CA Keerthiga. Have a great day.",
+      "[00:00] Auditor (CA Keerthiga Sri): Good morning, Sara. I am CA Keerthiga Sri J.M., Senior Partner at J.M. & Associates. Thank you for joining our scheduled statutory audit consultation for Sri.\n[00:25] Client (Sara): Good morning, CA Keerthiga. Pleased to speak with you.\n[00:32] Auditor: Before we begin, please note that this call is governed by ICAI confidentiality standards. Our discussion today covers our preliminary audit review of your 10-year financials leading into FY 2023-24. Verbal determinations made today are draft observations subject to our final certified audit report.\n[01:05] Client: Understood and completely agreed.\n[01:10] Auditor: Excellent. Examining your 10-year financial records, Sri has demonstrated impressive recovery. Following the ₹9.5 Lakh loss incurred in FY 2020, your revenue has climbed steadily from ₹2.84 Crores in FY 2021 to ₹5.28 Crores in FY 2024, with net profit reaching ₹79 Lakhs.\n[02:15] Client: Yes, our export orders picked up significantly over the last three years.\n[02:24] Auditor: That aligns with our sample testing of your export ledgers. However, during our verification under Section 143 of the Companies Act 2013, we noted two specific reconciliation items. First, there is a ₹4.2 Lakh timing difference in trade receivables under aging beyond 180 days. Second, we require the updated depreciation schedule for plant and machinery acquired in Q3 FY 2024 to verify deductions claimed under Section 32 of the Income Tax Act.\n[03:40] Client: We have the invoices for the machinery installed in November. Our accounts manager can send the fixed asset register and invoice copies today.\n[04:00] Auditor: Perfect. Under CARO 2020 requirements, we must verify physical asset tags against the asset register. Can your accounts team email the signed depreciation schedule and bank confirmation statements by Thursday, 5:00 PM?\n[04:30] Client: Yes, absolutely. I will personally ensure our CFO emails them before Thursday 5 PM.\n[04:45] Auditor: Wonderful. Once received, our team will complete the Form 3CD tax audit annexures and prepare the final Independent Auditor's Report. I will also schedule a 30-minute Google Meet consultation for next Monday at 3:00 PM with all directors to review the final certified draft before filing with MCA.\n[05:20] Client: That sounds great. Please send the Google Calendar invite with the Meet link to sri@clientaudit.com.\n[05:35] Auditor: Will do immediately through Audit Desk. To recap our action items: Sri will submit the ₹4.2 Lakh receivables reconciliation, machinery invoices, and depreciation schedule by Thursday 5 PM; J.M. & Associates will issue the CARO 2020 workpapers and host our Google Meet review on Monday. Thank you for your cooperation, Sara.\n[06:05] Client: Thank you very much, CA Keerthiga. Have a great day.",
     dimensions: [
       {
         id: "statutoryCompliance",
         name: "Statutory & Regulatory Compliance (ICAI Standards)",
-        weight: 25,
+        weight: 40,
         score: 96,
-        weightedScore: 24.0,
+        weightedScore: 38.4,
         status: "PASS",
         feedback: "Flawless disclaimer of draft verbal review vs final certified report. Rigorous citation of Section 143, CARO 2020, and Section 32.",
         keyObservations: [
@@ -290,9 +290,9 @@ const memoryCallAudits: any[] = [
       {
         id: "financialAccuracy",
         name: "Financial & Ledger Verification Accuracy",
-        weight: 25,
+        weight: 40,
         score: 95,
-        weightedScore: 23.8,
+        weightedScore: 38.0,
         status: "PASS",
         feedback: "Exact match with verified 10-year ledger: ₹9.5L loss in FY 2020, ₹2.84 Cr in FY 2021, and ₹5.28 Cr with ₹79L profit in FY 2024.",
         keyObservations: [
@@ -307,49 +307,11 @@ const memoryCallAudits: any[] = [
         ]
       },
       {
-        id: "professionalEtiquette",
-        name: "Professional Conduct & Communication Clarity",
-        weight: 20,
-        score: 92,
-        weightedScore: 18.4,
-        status: "PASS",
-        feedback: "Polite, authoritative, and respectful tone with active listening and clear client explanations.",
-        keyObservations: [
-          "Professional self-introduction with firm credentials.",
-          "Balanced professional authority with supportive client advisory tone.",
-        ],
-        criteriaChecks: [
-          { criterion: "Polite, formal greeting with auditor name, firm affiliation, and agenda", passed: true, evidence: "CA Keerthiga Sri J.M. / J.M. & Associates introduced." },
-          { criterion: "Active listening without interrupting client explanations of business nuances", passed: true, evidence: "Allowed client full scope to clarify export pickup." },
-          { criterion: "Avoided obscure audit jargon when explaining obligations to client management", passed: true, evidence: "Clear non-legalistic explanations of CARO obligations." },
-          { criterion: "Maintained an authoritative yet constructive, collaborative advisory tone", passed: true, evidence: "Constructive advisory approach." }
-        ]
-      },
-      {
-        id: "actionableResolution",
-        name: "Action Items & Follow-up Discipline",
-        weight: 20,
-        score: 95,
-        weightedScore: 19.0,
-        status: "PASS",
-        feedback: "Superb wrap-up with explicit submission deadline (Thursday 5:00 PM) and scheduled follow-up Google Meet session.",
-        keyObservations: [
-          "Firm submission deadline assigned to client accounts team.",
-          "Integrated Google Meet review scheduled for board sign-off.",
-        ],
-        criteriaChecks: [
-          { criterion: "Documented concrete list of pending vouchers, certificates, or ledgers needed", passed: true, evidence: "Receivables reconciliation and asset invoices requested." },
-          { criterion: "Agreed upon explicit submission deadlines with the client team", passed: true, evidence: "Thursday 5:00 PM agreed upon." },
-          { criterion: "Scheduled a follow-up consultation or Google Meet session to review final drafts", passed: true, evidence: "Monday 3:00 PM Google Meet consultation agreed." },
-          { criterion: "Summarized agreed decisions and action owners before concluding the call", passed: true, evidence: "Clear closing recap by auditor." }
-        ]
-      },
-      {
         id: "riskDetection",
         name: "Risk, Red Flag & Anomaly Detection",
-        weight: 10,
+        weight: 20,
         score: 90,
-        weightedScore: 9.0,
+        weightedScore: 18.0,
         status: "PASS",
         feedback: "Proactive scrutiny of aged debtors and physical asset tags.",
         keyObservations: [
@@ -420,8 +382,8 @@ const memoryCallAudits: any[] = [
     callDurationMinutes: 22,
     audioFileName: "zenith_gst_depr_review.webm",
     hasAudio: true,
-    overallScore: 78,
-    grade: "B",
+    overallScore: 82,
+    grade: "A",
     complianceStatus: "FLAGGED_WITH_WARNINGS",
     executiveSummary:
       "Satisfactory audit consultation with technical diligence for client KS. Auditor successfully caught an ₹8.6 Lakh GSTR-2B Input Tax Credit mismatch and corrected an unapproved straight-line vehicle depreciation calculation. Minor follow-up required on Google Meet invite scheduling.",
@@ -431,9 +393,9 @@ const memoryCallAudits: any[] = [
       {
         id: "statutoryCompliance",
         name: "Statutory & Regulatory Compliance (ICAI Standards)",
-        weight: 25,
+        weight: 40,
         score: 82,
-        weightedScore: 20.5,
+        weightedScore: 32.8,
         status: "PASS",
         feedback: "Properly stopped client from availing ineligible GST credit under Section 16(2)(aa). Verbal opening disclaimer was somewhat brief.",
         keyObservations: [
@@ -450,9 +412,9 @@ const memoryCallAudits: any[] = [
       {
         id: "financialAccuracy",
         name: "Financial & Ledger Verification Accuracy",
-        weight: 25,
+        weight: 40,
         score: 85,
-        weightedScore: 21.3,
+        weightedScore: 34.0,
         status: "PASS",
         feedback: "Excellent technical scrutiny detecting ₹8.6 Lakh ITC gap and SLM vs WDV calculation discrepancy.",
         keyObservations: [
@@ -467,49 +429,11 @@ const memoryCallAudits: any[] = [
         ]
       },
       {
-        id: "professionalEtiquette",
-        name: "Professional Conduct & Communication Clarity",
+        id: "riskDetection",
+        name: "Risk, Red Flag & Anomaly Detection",
         weight: 20,
         score: 75,
         weightedScore: 15.0,
-        status: "PASS",
-        feedback: "Clear and direct communication, but introductory greeting lacked full firm name and meeting agenda details.",
-        keyObservations: [
-          "Firm tone maintained during compliance instruction.",
-          "Opening could be more structured with formal agenda.",
-        ],
-        criteriaChecks: [
-          { criterion: "Polite, formal greeting with auditor name, firm affiliation, and agenda", passed: false, evidence: "Brief greeting; add formal consultation agenda." },
-          { criterion: "Active listening without interrupting client explanations of business nuances", passed: true, evidence: "Listened to client's software glitch explanation." },
-          { criterion: "Avoided obscure audit jargon when explaining obligations to client management", passed: true, evidence: "Simple explanation of ITC rules." },
-          { criterion: "Maintained an authoritative yet constructive, collaborative advisory tone", passed: true, evidence: "Authoritative compliance guidance." }
-        ]
-      },
-      {
-        id: "actionableResolution",
-        name: "Action Items & Follow-up Discipline",
-        weight: 20,
-        score: 70,
-        weightedScore: 14.0,
-        status: "WARN",
-        feedback: "Deadlines set for Friday, but no dedicated follow-up Google Meet consultation link was dispatched.",
-        keyObservations: [
-          "Requested vendor confirmation letters by Friday.",
-          "Missing Google Meet calendar sync invitation.",
-        ],
-        criteriaChecks: [
-          { criterion: "Documented concrete list of pending vouchers, certificates, or ledgers needed", passed: true, evidence: "Vendor letters and WDV schedules required." },
-          { criterion: "Agreed upon explicit submission deadlines with the client team", passed: true, evidence: "Friday deadline set." },
-          { criterion: "Scheduled a follow-up consultation or Google Meet session to review final drafts", passed: false, evidence: "No follow-up Google Meet session scheduled." },
-          { criterion: "Summarized agreed decisions and action owners before concluding the call", passed: true, evidence: "Deliverables assigned to client team." }
-        ]
-      },
-      {
-        id: "riskDetection",
-        name: "Risk, Red Flag & Anomaly Detection",
-        weight: 10,
-        score: 75,
-        weightedScore: 7.5,
         status: "PASS",
         feedback: "Detected ITC interest liability risk under Section 73.",
         keyObservations: [

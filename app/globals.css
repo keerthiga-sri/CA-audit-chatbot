@@ -2469,15 +2469,10 @@ a.chat-inline-link:hover,
 /* Stats Ribbon */
 .call-audit-stats-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 16px;
 }
 
-@media (max-width: 900px) {
-  .call-audit-stats-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
 @media (max-width: 560px) {
   .call-audit-stats-grid {
     grid-template-columns: 1fr;

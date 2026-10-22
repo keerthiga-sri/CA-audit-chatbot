@@ -5,7 +5,6 @@ import Link from "next/link";
 import {
   CallAuditEvaluation,
   CallAuditSummaryStats,
-  DEFAULT_CA_RUBRIC,
   SAMPLE_CONSULTATION_CALLS,
 } from "@/lib/call-audit";
 import { startAudioRecording, ActiveAudioRecorder } from "@/lib/voice";
@@ -13,7 +12,7 @@ import { startAudioRecording, ActiveAudioRecorder } from "@/lib/voice";
 type Client = { id: string; name: string; email: string | null };
 
 export default function CallAuditHub() {
-  const [activeTab, setActiveTab] = useState<"new" | "report" | "history" | "rubric">("new");
+  const [activeTab, setActiveTab] = useState<"new" | "report" | "history">("new");
 
   // Client Selection
   const [clients, setClients] = useState<Client[]>([]);
@@ -21,7 +20,7 @@ export default function CallAuditHub() {
   const [selectedClientId, setSelectedClientId] = useState<string | undefined>("5f3725aa-4c39-4de4-af19-22ebc2cd227b");
 
   // Audit Form States
-  const [inputMode, setInputMode] = useState<"audio" | "transcript">("transcript");
+  const [inputMode, setInputMode] = useState<"transcript" | "audio">("transcript");
   const [callTitle, setCallTitle] = useState("FY 2023-24 Statutory Audit Review & Balance Sheet Finalization");
   const [auditorName, setAuditorName] = useState("CA Keerthiga Sri J.M.");
   const [callDate, setCallDate] = useState(() => new Date().toISOString().slice(0, 10));
@@ -43,7 +42,6 @@ export default function CallAuditHub() {
   const [evalStep, setEvalStep] = useState<string>("");
   const [currentEvaluation, setCurrentEvaluation] = useState<CallAuditEvaluation | null>(null);
   const [copiedNotification, setCopiedNotification] = useState(false);
-  const [expandedDimId, setExpandedDimId] = useState<string | null>("statutoryCompliance");
 
   // History & Stats States
   const [audits, setAudits] = useState<CallAuditEvaluation[]>([]);
@@ -52,6 +50,24 @@ export default function CallAuditHub() {
   const [historyGradeFilter, setHistoryGradeFilter] = useState("ALL");
   const [historyStatusFilter, setHistoryStatusFilter] = useState("ALL");
   const [loadingHistory, setLoadingHistory] = useState(false);
+
+  // Top Nav Menu State
+  const [showNavMenu, setShowNavMenu] = useState(false);
+  const navMenuRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (navMenuRef.current && !navMenuRef.current.contains(event.target as Node)) {
+        setShowNavMenu(false);
+      }
+    }
+    if (showNavMenu) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showNavMenu]);
 
   // Initial Data Load
   useEffect(() => {
@@ -104,9 +120,9 @@ export default function CallAuditHub() {
     setAuditorName(s.auditorName);
     setCallDuration(s.callDurationMinutes);
     setTranscript(s.transcript);
-    setInputMode("transcript");
     setAudioFile(null);
     setAudioUrl(null);
+    setInputMode("transcript");
   }
 
   // Audio File Selection & Drag-and-drop
@@ -116,6 +132,7 @@ export default function CallAuditHub() {
     if (audioUrl) URL.revokeObjectURL(audioUrl);
     const url = URL.createObjectURL(file);
     setAudioUrl(url);
+    setInputMode("audio");
     if (!callTitle || callTitle.includes("Statutory Audit Review")) {
       setCallTitle(`Audio Consultation: ${file.name.replace(/\.[^/.]+$/, "")}`);
     }
@@ -144,6 +161,7 @@ export default function CallAuditHub() {
       try {
         const recorder = await startAudioRecording((vol) => setAudioVolume(vol));
         audioRecorderRef.current = recorder;
+        setInputMode("audio");
         setIsRecording(true);
         setRecordingSeconds(0);
         recordTimerRef.current = setInterval(() => {
@@ -157,12 +175,12 @@ export default function CallAuditHub() {
 
   // Submit Call for Evaluation
   async function handleRunEvaluation() {
-    if (inputMode === "audio" && !audioFile && !transcript.trim()) {
-      alert("Please upload an audio file or enter a consultation transcript.");
+    if (inputMode === "audio" && !audioFile) {
+      alert("Please upload a consultation audio file or record live with the microphone.");
       return;
     }
     if (inputMode === "transcript" && !transcript.trim()) {
-      alert("Please enter or paste the consultation call transcript.");
+      alert("Please enter or paste the call dialogue transcript to evaluate.");
       return;
     }
 
@@ -210,8 +228,8 @@ export default function CallAuditHub() {
             callTitle,
             callDate,
             callDurationMinutes: callDuration,
-            audioFileName: audioFile ? audioFile.name : undefined,
-            hasAudio: Boolean(audioFile),
+            audioFileName: "consultation_sample.webm",
+            hasAudio: true,
           }),
         });
         const data = await res.json();
@@ -272,15 +290,6 @@ export default function CallAuditHub() {
       {/* ---------- TOP NAVIGATION ---------- */}
       <header className="call-audit-top-nav">
         <div className="call-audit-brand">
-          <div className="call-audit-brand-icon">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/>
-              <path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/>
-              <path d="M7 21h10"/>
-              <path d="M12 3v18"/>
-              <path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/>
-            </svg>
-          </div>
           <div>
             <div className="call-audit-brand-title">Call Scoring & Audit Hub</div>
             <div className="call-audit-brand-sub">
@@ -295,19 +304,82 @@ export default function CallAuditHub() {
           <Link href="/" className="call-audit-nav-btn">
             Chat Desk
           </Link>
-          <Link href="/upload" className="call-audit-nav-btn">
-            10-Yr Ledgers
-          </Link>
-          <Link href="/docs" className="call-audit-nav-btn">
-            REST APIs
-          </Link>
-          <button
-            type="button"
-            className="call-audit-nav-btn primary"
-            onClick={() => setActiveTab("new")}
-          >
-            + New Call Audit
-          </button>
+
+          <div className="three-dot-menu-wrapper" ref={navMenuRef}>
+            <button
+              type="button"
+              className={`three-dot-trigger-btn ${showNavMenu ? "active" : ""}`}
+              onClick={() => setShowNavMenu(!showNavMenu)}
+              title="More Actions & Navigation"
+              aria-label="More Actions & Navigation"
+              aria-expanded={showNavMenu}
+              style={{
+                width: "36px",
+                height: "35px",
+                borderRadius: "8px",
+                borderColor: "#cbd5e1",
+              }}
+            >
+              <span className="three-dot-icon">⋮</span>
+            </button>
+
+            {showNavMenu && (
+              <div
+                className="three-dot-dropdown-menu"
+                role="menu"
+                style={{ width: "260px", right: 0 }}
+              >
+                <button
+                  type="button"
+                  className="three-dot-menu-item"
+                  role="menuitem"
+                  onClick={() => {
+                    setActiveTab("new");
+                    setShowNavMenu(false);
+                  }}
+                >
+                  <div className="menu-item-text">
+                    <div className="menu-item-title" style={{ fontWeight: 700, color: "#0f172a" }}>
+                      + New Call Audit
+                    </div>
+                    <div className="menu-item-desc">Audio scoring or transcript audit</div>
+                  </div>
+                </button>
+
+                <div className="three-dot-menu-divider" />
+
+                <Link
+                  href="/upload"
+                  className="three-dot-menu-item"
+                  role="menuitem"
+                  onClick={() => setShowNavMenu(false)}
+                  style={{ textDecoration: "none", color: "inherit" }}
+                >
+                  <div className="menu-item-text">
+                    <div className="menu-item-title" style={{ fontWeight: 600, color: "#1e293b" }}>
+                      10-Yr Ledgers
+                    </div>
+                    <div className="menu-item-desc">Ledgers, trial balance & vouchers</div>
+                  </div>
+                </Link>
+
+                <Link
+                  href="/docs"
+                  className="three-dot-menu-item"
+                  role="menuitem"
+                  onClick={() => setShowNavMenu(false)}
+                  style={{ textDecoration: "none", color: "inherit" }}
+                >
+                  <div className="menu-item-text">
+                    <div className="menu-item-title" style={{ fontWeight: 600, color: "#1e293b" }}>
+                      REST APIs
+                    </div>
+                    <div className="menu-item-desc">API endpoints & documentation</div>
+                  </div>
+                </Link>
+              </div>
+            )}
+          </div>
         </nav>
       </header>
 
@@ -317,28 +389,9 @@ export default function CallAuditHub() {
         <section className="call-audit-stats-grid" aria-label="Call Audit Metrics">
           <div className="call-audit-stat-card">
             <div className="call-audit-stat-info">
-              <div className="call-audit-stat-label">Avg Quality Score</div>
-              <div className="call-audit-stat-value">
-                {stats?.avgScore ?? "92.0"}
-                <span className="call-audit-score-den">/ 100</span>
-              </div>
-              <div className="call-audit-stat-sub">ICAI Quality Benchmark: 80+</div>
-            </div>
-          </div>
-
-          <div className="call-audit-stat-card">
-            <div className="call-audit-stat-info">
               <div className="call-audit-stat-label">Calls Audited</div>
               <div className="call-audit-stat-value">{stats?.totalAudited ?? audits.length}</div>
               <div className="call-audit-stat-sub">Statutory consultations logged</div>
-            </div>
-          </div>
-
-          <div className="call-audit-stat-card">
-            <div className="call-audit-stat-info">
-              <div className="call-audit-stat-label">Statutory Compliance</div>
-              <div className="call-audit-stat-value">{stats?.passRate ?? 100}%</div>
-              <div className="call-audit-stat-sub">Adherence to ICAI ethics & CARO</div>
             </div>
           </div>
 
@@ -360,6 +413,7 @@ export default function CallAuditHub() {
             className={`call-audit-tab-btn ${activeTab === "new" ? "active" : ""}`}
             onClick={() => setActiveTab("new")}
           >
+            <span>🎙️</span>
             <span>1. New Call Audit</span>
           </button>
 
@@ -381,14 +435,6 @@ export default function CallAuditHub() {
           >
             <span>3. Audit History & QA Log</span>
             <span className="call-audit-tab-badge">{audits.length}</span>
-          </button>
-
-          <button
-            type="button"
-            className={`call-audit-tab-btn ${activeTab === "rubric" ? "active" : ""}`}
-            onClick={() => setActiveTab("rubric")}
-          >
-            <span>4. ICAI Rubric Guide</span>
           </button>
         </nav>
 
@@ -439,9 +485,13 @@ export default function CallAuditHub() {
                     background: inputMode === "audio" ? "#ffffff" : "transparent",
                     color: inputMode === "audio" ? "#0f172a" : "#64748b",
                     boxShadow: inputMode === "audio" ? "0 1px 3px rgba(0,0,0,0.1)" : "none",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "6px",
                   }}
                 >
-                  Audio Upload / Record
+                  <span>🎙️</span>
+                  <span>Audio Upload / Record</span>
                 </button>
               </div>
             </div>
@@ -578,6 +628,7 @@ export default function CallAuditHub() {
                       }
                     }}
                   />
+                  <div style={{ fontSize: "32px", marginBottom: "8px" }}>🎙️</div>
                   <div style={{ fontSize: "15px", fontWeight: 700, color: "#0f172a" }}>
                     {audioFile ? audioFile.name : "Drop Consultation Audio File or Click to Browse"}
                   </div>
@@ -586,7 +637,7 @@ export default function CallAuditHub() {
                   </div>
                   {audioFile && (
                     <div style={{ marginTop: "10px", display: "inline-block", background: "#ecfdf5", border: "1px solid #a7f3d0", padding: "4px 10px", borderRadius: "6px", fontSize: "12px", color: "#065f46", fontWeight: 600 }}>
-                      ✓ {(audioFile.size / (1024 * 1024)).toFixed(2)} MB Audio File Loaded
+                      🎙️ {(audioFile.size / (1024 * 1024)).toFixed(2)} MB Audio File Loaded
                     </div>
                   )}
                 </div>
@@ -597,8 +648,9 @@ export default function CallAuditHub() {
                     {audioUrl ? (
                       <audio controls src={audioUrl} style={{ height: "36px" }} />
                     ) : (
-                      <span style={{ fontSize: "13px", color: "#64748b" }}>
-                        No audio file selected yet. Or record live:
+                      <span style={{ fontSize: "13px", color: "#64748b", display: "inline-flex", alignItems: "center", gap: "6px" }}>
+                        <span>🎙️</span>
+                        <span>No audio file selected yet. Or record live with microphone:</span>
                       </span>
                     )}
                   </div>
@@ -607,7 +659,7 @@ export default function CallAuditHub() {
                     {isRecording && (
                       <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "13px", fontWeight: 700, color: "#dc2626" }}>
                         <span style={{ display: "inline-block", width: "10px", height: "10px", borderRadius: "50%", background: "#dc2626", animation: "pulse 1s infinite" }} />
-                        <span>Recording: {Math.floor(recordingSeconds / 60)}:{String(recordingSeconds % 60).padStart(2, "0")}</span>
+                        <span>🎙️ Recording: {Math.floor(recordingSeconds / 60)}:{String(recordingSeconds % 60).padStart(2, "0")}</span>
                         <span style={{ fontSize: "11px", color: "#64748b" }}>Vol: {audioVolume}%</span>
                       </div>
                     )}
@@ -630,7 +682,8 @@ export default function CallAuditHub() {
                         gap: "6px",
                       }}
                     >
-                      {isRecording ? "Stop & Keep Recording" : "Record Live Consultation"}
+                      <span>🎙️</span>
+                      <span>{isRecording ? "Stop & Keep Recording" : "Record Live Consultation"}</span>
                     </button>
                   </div>
                 </div>
@@ -808,84 +861,43 @@ export default function CallAuditHub() {
               </div>
             )}
 
-            {/* 5-Dimensional Rubric Breakdown */}
+            {/* Core Audit Score Dimensions (3 Key Dimensions) */}
             <div className="call-audit-card">
               <h3 style={{ fontSize: "18px", fontWeight: 700, margin: "0 0 16px 0", color: "#0f172a" }}>
-                5-Dimensional Consultation Rubric Breakdown
+                Core Audit Score Breakdown (Key Evaluation Dimensions)
               </h3>
 
-              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                {currentEvaluation.dimensions.map((dim) => {
-                  const isExpanded = expandedDimId === dim.id;
-                  return (
-                    <div key={dim.id} className="call-audit-dimension-card">
-                      <div
-                        className="call-audit-dim-header"
-                        style={{ cursor: "pointer" }}
-                        onClick={() => setExpandedDimId(isExpanded ? null : dim.id)}
-                      >
-                        <div className="call-audit-dim-title">
-                          <span className="call-audit-tab-badge" style={{ marginRight: "6px" }}>{dim.status}</span>
-                          <span>{dim.name}</span>
-                          <span className="call-audit-dim-weight">{dim.weight}% Weight</span>
-                        </div>
-                        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                          <span className="call-audit-dim-score">{dim.score} / 100</span>
-                          <span style={{ fontSize: "12px", color: "#64748b" }}>{isExpanded ? "▲ Hide" : "▼ Details"}</span>
-                        </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                {currentEvaluation.dimensions
+                  .filter((dim) => dim.id !== "professionalEtiquette" && dim.id !== "actionableResolution")
+                  .map((dim) => (
+                  <div key={dim.id} className="call-audit-dimension-card">
+                    <div className="call-audit-dim-header">
+                      <div className="call-audit-dim-title">
+                        <span className="call-audit-tab-badge" style={{ marginRight: "6px" }}>{dim.status}</span>
+                        <span>{dim.name}</span>
+                        <span className="call-audit-dim-weight">{dim.weight}% Weight</span>
                       </div>
-
-                      {/* Progress Bar */}
-                      <div className="call-audit-dim-progress-track">
-                        <div
-                          className={`call-audit-dim-progress-fill ${
-                            dim.score >= 75 ? "pass" : dim.score >= 60 ? "warn" : "fail"
-                          }`}
-                          style={{ width: `${dim.score}%` }}
-                        />
+                      <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                        <span className="call-audit-dim-score">{dim.score} / 100</span>
                       </div>
-
-                      <div style={{ fontSize: "13.5px", color: "#334155", lineHeight: "1.5" }}>
-                        {dim.feedback}
-                      </div>
-
-                      {/* Expandable Criteria Checklist */}
-                      {isExpanded && dim.criteriaChecks && dim.criteriaChecks.length > 0 && (
-                        <div style={{ marginTop: "14px", paddingTop: "12px", borderTop: "1px dashed #e2e8f0" }}>
-                          <div style={{ fontSize: "12px", fontWeight: 700, textTransform: "uppercase", color: "#64748b", marginBottom: "8px" }}>
-                            Detailed Criteria Verification:
-                          </div>
-                          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                            {dim.criteriaChecks.map((crit, cIdx) => (
-                              <div
-                                key={cIdx}
-                                style={{
-                                  display: "flex",
-                                  alignItems: "flex-start",
-                                  gap: "10px",
-                                  fontSize: "13px",
-                                  background: crit.passed ? "#f8fafc" : "#fffbeb",
-                                  padding: "8px 12px",
-                                  borderRadius: "6px",
-                                  border: "1px solid",
-                                  borderColor: crit.passed ? "#e2e8f0" : "#fef3c7",
-                                }}
-                              >
-                                <span style={{ fontSize: "11px", fontWeight: 700, padding: "2px 6px", borderRadius: "4px", background: crit.passed ? "#dcfce7" : "#fef3c7", color: crit.passed ? "#15803d" : "#b45309" }}>{crit.passed ? "PASS" : "WARN"}</span>
-                                <div style={{ flex: 1 }}>
-                                  <div style={{ fontWeight: 600, color: "#0f172a" }}>{crit.criterion}</div>
-                                  <div style={{ fontSize: "12px", color: "#64748b", marginTop: "2px" }}>
-                                    Evidence: {crit.evidence}
-                                  </div>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
                     </div>
-                  );
-                })}
+
+                    {/* Progress Bar */}
+                    <div className="call-audit-dim-progress-track">
+                      <div
+                        className={`call-audit-dim-progress-fill ${
+                          dim.score >= 75 ? "pass" : dim.score >= 60 ? "warn" : "fail"
+                        }`}
+                        style={{ width: `${dim.score}%` }}
+                      />
+                    </div>
+
+                    <div style={{ fontSize: "13.5px", color: "#334155", lineHeight: "1.5" }}>
+                      {dim.feedback}
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
 
@@ -1139,48 +1151,6 @@ export default function CallAuditHub() {
                 </table>
               </div>
             )}
-          </div>
-        )}
-
-        {/* ========================================================================= */}
-        {/* TAB 4: ICAI RUBRIC GUIDE                                                  */}
-        {/* ========================================================================= */}
-        {activeTab === "rubric" && (
-          <div className="call-audit-card">
-            <h3 style={{ fontSize: "20px", fontWeight: 700, margin: "0 0 6px 0", color: "#0f172a" }}>
-              Standard ICAI Consultation Audit Rubric & Quality Benchmark
-            </h3>
-            <p style={{ fontSize: "13.5px", color: "#64748b", margin: "0 0 20px 0" }}>
-              Established quality framework governing all client audit and advisory calls conducted under J.M. & Associates.
-            </p>
-
-            <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-              {DEFAULT_CA_RUBRIC.map((item) => (
-                <div key={item.id} style={{ border: "1px solid #e2e8f0", borderRadius: "10px", padding: "18px 20px", background: "#f8fafc" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
-                    <div style={{ fontSize: "16px", fontWeight: 700, color: "#0f172a" }}>
-                      {item.name}
-                    </div>
-                    <span className="call-audit-dim-weight" style={{ fontSize: "12.5px" }}>
-                      Weight: {item.weight}%
-                    </span>
-                  </div>
-                  <p style={{ fontSize: "13.5px", color: "#475569", lineHeight: "1.5", margin: "0 0 12px 0" }}>
-                    {item.description}
-                  </p>
-                  <div>
-                    <div style={{ fontSize: "12px", fontWeight: 700, textTransform: "uppercase", color: "#64748b", marginBottom: "6px" }}>
-                      Evaluated Criteria:
-                    </div>
-                    <ul style={{ margin: 0, paddingLeft: "18px", color: "#334155", fontSize: "13px", lineHeight: "1.6" }}>
-                      {item.criteria.map((c, i) => (
-                        <li key={i}>{c}</li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-              ))}
-            </div>
           </div>
         )}
       </main>

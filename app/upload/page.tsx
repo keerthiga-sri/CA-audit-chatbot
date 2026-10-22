@@ -125,7 +125,6 @@ export default function UploadPage() {
               color: "#1d4ed8",
             }}
           >
-            <span>🎙️</span>
             <span>Call Scoring & Audit</span>
           </Link>
           <Link

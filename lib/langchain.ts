@@ -108,10 +108,11 @@ ${compactExcerpts || "No extra document excerpts."}
 ==================================================
 CRITICAL OPERATING RULES & DIRECTIVES
 ==================================================
-1. STRICT SINGLE OUTPUT RULE:
-   - For every question asked regarding the client's financials or audit document, provide strictly ONLY ONE direct, appropriate, and accurate answer.
-   - Do NOT offer multiple choices, alternative scenarios, bulleted possibilities, or speculative options.
-   - Give one clear, authoritative, and concise answer.
+1. STRICT PRECISE & SHORT ANSWER RULE:
+   - Provide ONLY a direct, concise, and precise answer to the user's specific question.
+   - Do NOT include long preambles, introductory filler (such as "According to the verified 10-year statutory audit records..."), repeated bulleted lists, or boilerplate certification signatures.
+   - Answer directly in 1 short, clear sentence with the exact figures.
+   - Example: If asked "What was the profit in 2021?", answer directly: "In **2021**, the net profit for **Sri** was **₹31,00,000**."
 
 2. NUMERICAL ACCURACY:
    - Quote numbers and currency units exactly as recorded in the 10-year financial ledger and document. Never invent or hallucinate figures.
@@ -121,9 +122,8 @@ CRITICAL OPERATING RULES & DIRECTIVES
    - If the requested information is not in the audit records or context, state that plainly in one direct sentence.
 
 4. COMMUNICATING CHATBOT & CONVERSATIONAL FLOW:
-   - Reply to EACH and EVERY message or question the user asks.
-   - Maintain a courteous, professional tone suitable for a Chartered Accountant firm.
-   - If the user greets you or asks who you or the auditor are, reply warmly with the Auditor's and Client's details.`;
+   - Reply directly to the user's question without preamble.
+   - If the user greets you or asks who you or the auditor are, reply concisely with the Auditor's and Client's details.`;
 
   if (params.hasMeetingTools) {
     content += `
@@ -302,25 +302,35 @@ export function answerFromFinancialLedger(params: {
     const targetYear = parseInt(yearMatch[1], 10);
     const row = fin.find((r) => r.year === targetYear);
     if (row) {
-      const incStr = row.income !== null && row.income !== undefined ? Number(row.income).toLocaleString() : "N/A";
+      const incStr = row.income !== null && row.income !== undefined ? Number(row.income).toLocaleString() : "0";
       const profStr = row.profit !== null && row.profit !== undefined ? Number(row.profit).toLocaleString() : "0";
       const lossStr = row.loss !== null && row.loss !== undefined ? Number(row.loss).toLocaleString() : "0";
 
-      let statusNote = "";
-      if (Number(row.profit) > 0) {
-        statusNote = `The company operated profitably in **FY ${targetYear}** with a certified net profit of **${profStr}** and zero recorded losses.`;
-      } else if (Number(row.loss) > 0) {
-        statusNote = `In **FY ${targetYear}**, the company incurred an audited net loss of **${lossStr}** (no net profit recorded).`;
-      } else {
-        statusNote = `In **FY ${targetYear}**, the company reported break-even financial performance.`;
+      const isProfitQ = /\b(profit|net profit|earnings)\b/i.test(q);
+      const isIncomeQ = /\b(income|revenue|turnover|sales)\b/i.test(q);
+      const isLossQ = /\b(loss|losses)\b/i.test(q);
+
+      if (isProfitQ && !isIncomeQ && !isLossQ) {
+        if (Number(row.profit) > 0) {
+          return `In **${targetYear}**, the net profit for **${params.clientName}** was **₹${profStr}**.`;
+        } else if (Number(row.loss) > 0) {
+          return `In **${targetYear}**, **${params.clientName}** incurred a net loss of **₹${lossStr}** (no net profit).`;
+        } else {
+          return `In **${targetYear}**, **${params.clientName}** broke even with **₹0** net profit.`;
+        }
       }
 
-      return `According to the verified 10-year statutory audit records for **${params.clientName}**, in the financial year **${targetYear}**:\n\n` +
-        `• **Revenue / Total Income:** ${incStr}\n` +
-        `• **Net Profit:** ${profStr}\n` +
-        `• **Net Loss:** ${lossStr}\n\n` +
-        `${statusNote}\n\n` +
-        `*Certified by Lead Statutory Auditor ${auditor.name} (${auditor.regNo}) · ${auditor.firm}.*`;
+      if (isIncomeQ && !isProfitQ && !isLossQ) {
+        return `In **${targetYear}**, the revenue/total income for **${params.clientName}** was **₹${incStr}**.`;
+      }
+
+      if (isLossQ && !isProfitQ && !isIncomeQ) {
+        return Number(row.loss) > 0
+          ? `In **${targetYear}**, the net loss for **${params.clientName}** was **₹${lossStr}**.`
+          : `In **${targetYear}**, **${params.clientName}** had zero losses (net profit: ₹${profStr}).`;
+      }
+
+      return `In **FY ${targetYear}**, **${params.clientName}** recorded revenue of **₹${incStr}** and net profit of **₹${profStr}**${Number(row.loss) > 0 ? ` (net loss: ₹${lossStr})` : ""}.`;
     }
   }
 
@@ -331,7 +341,7 @@ export function answerFromFinancialLedger(params: {
       return max;
     }, null);
     if (highest) {
-      return `For **${params.clientName}**, the highest annual profit in the 10-year audit period was recorded in **FY ${highest.year}** with a net profit of **${Number(highest.profit).toLocaleString()}** (Income: ${Number(highest.income).toLocaleString()}).\n\n*Certified by CA Keerthiga Sri J.M.*`;
+      return `The highest annual profit for **${params.clientName}** was **₹${Number(highest.profit).toLocaleString()}** in **FY ${highest.year}**.`;
     }
   }
 
@@ -342,7 +352,7 @@ export function answerFromFinancialLedger(params: {
       return max;
     }, null);
     if (highest) {
-      return `For **${params.clientName}**, the highest annual revenue was achieved in **FY ${highest.year}** with total income of **${Number(highest.income).toLocaleString()}** (Profit: ${Number(highest.profit).toLocaleString()}).\n\n*Certified by CA Keerthiga Sri J.M.*`;
+      return `The highest annual revenue for **${params.clientName}** was **₹${Number(highest.income).toLocaleString()}** in **FY ${highest.year}**.`;
     }
   }
 
@@ -353,7 +363,16 @@ export function answerFromFinancialLedger(params: {
       return min;
     }, null);
     if (lowest) {
-      return `For **${params.clientName}**, the lowest annual revenue in the 10-year period was in **FY ${lowest.year}** with **${Number(lowest.income).toLocaleString()}**.\n\n*Certified by CA Keerthiga Sri J.M.*`;
+      return `The lowest annual revenue for **${params.clientName}** was **₹${Number(lowest.income).toLocaleString()}** in **FY ${lowest.year}**.`;
+    }
+  }
+  if (q.includes("lowest profit") || q.includes("minimum profit")) {
+    const lowest = fin.reduce<typeof fin[0] | null>((min, r) => {
+      if (!min || (r.profit ?? Infinity) < (min.profit ?? Infinity)) return r;
+      return min;
+    }, null);
+    if (lowest) {
+      return `The lowest annual profit for **${params.clientName}** was **₹${Number(lowest.profit).toLocaleString()}** in **FY ${lowest.year}**.`;
     }
   }
 
@@ -361,32 +380,29 @@ export function answerFromFinancialLedger(params: {
   if (q.includes("loss") || q.includes("losses") || q.includes("incur any loss")) {
     const lossRows = fin.filter((r) => Number(r.loss) > 0);
     if (lossRows.length === 0) {
-      return `Based on the 10-year statutory audit records for **${params.clientName}**, the company did **not** incur a loss in any year (${fin[0]?.year} - ${fin[fin.length - 1]?.year}). All recorded financial years operated at a net profit.\n\n*Certified by CA Keerthiga Sri J.M.*`;
+      return `**${params.clientName}** incurred no losses during the 10-year audit period (${fin[0]?.year}–${fin[fin.length - 1]?.year}).`;
     }
     const lossSummary = lossRows
-      .map((r) => `• **FY ${r.year}**: Net Loss = ${Number(r.loss).toLocaleString()} (Income: ${Number(r.income).toLocaleString()})`)
-      .join("\n");
-    return `In the 10-year audit period, **${params.clientName}** incurred a net loss in **${lossRows.length}** financial year${lossRows.length > 1 ? "s" : ""}:\n\n${lossSummary}\n\nThe remaining ${fin.length - lossRows.length} years all operated profitably.\n\n*Certified by CA Keerthiga Sri J.M.*`;
+      .map((r) => `FY ${r.year}: ₹${Number(r.loss).toLocaleString()}`)
+      .join(", ");
+    return `**${params.clientName}** incurred a net loss in ${lossRows.length} year${lossRows.length > 1 ? "s" : ""}: ${lossSummary}.`;
   }
 
   // 6) Total income or cumulative figures
   if (q.includes("total income") || q.includes("total revenue") || q.includes("cumulative income") || q.includes("overall income") || q.includes("total profit")) {
     const totalInc = fin.reduce((sum, r) => sum + (Number(r.income) || 0), 0);
     const totalProf = fin.reduce((sum, r) => sum + (Number(r.profit) || 0), 0);
-    const totalLoss = fin.reduce((sum, r) => sum + (Number(r.loss) || 0), 0);
-    return `Over the 10 audited financial years (${fin[0]?.year} to ${fin[fin.length - 1]?.year}), **${params.clientName}** recorded:\n\n` +
-      `• **Total 10-Year Cumulative Income:** ${totalInc.toLocaleString()}\n` +
-      `• **Total 10-Year Cumulative Net Profit:** ${totalProf.toLocaleString()}\n` +
-      `• **Total 10-Year Net Loss:** ${totalLoss.toLocaleString()}\n` +
-      `• **Net 10-Year Position:** ${(totalProf - totalLoss).toLocaleString()}\n\n` +
-      `*Statutory Audit certified by CA Keerthiga Sri J.M.*`;
+    const isProfOnly = q.includes("total profit") && !q.includes("income") && !q.includes("revenue");
+    if (isProfOnly) {
+      return `The 10-year cumulative net profit for **${params.clientName}** was **₹${totalProf.toLocaleString()}**.`;
+    }
+    return `For **${params.clientName}**, the 10-year total revenue was **₹${totalInc.toLocaleString()}** and total net profit was **₹${totalProf.toLocaleString()}**.`;
   }
 
   // 7) Complete 10-year table overview
   if (fin.length > 0) {
     const totalInc = fin.reduce((sum, r) => sum + (Number(r.income) || 0), 0);
     const totalProf = fin.reduce((sum, r) => sum + (Number(r.profit) || 0), 0);
-    const totalLoss = fin.reduce((sum, r) => sum + (Number(r.loss) || 0), 0);
 
     const rowsTable = fin
       .map(
@@ -395,17 +411,13 @@ export function answerFromFinancialLedger(params: {
       )
       .join("\n");
 
-    return `### 10-Year Statutory Audit Ledger: ${params.clientName}\n\n` +
-      `| Financial Year | Income / Revenue | Net Profit | Net Loss |\n| :--- | :--- | :--- | :--- |\n` +
+    return `### 10-Year Financial Ledger: ${params.clientName}\n\n` +
+      `| Financial Year | Revenue | Net Profit | Net Loss |\n| :--- | :--- | :--- | :--- |\n` +
       `${rowsTable}\n\n` +
-      `**Key Financial Metrics:**\n` +
-      `• Cumulative Income: **${totalInc.toLocaleString()}**\n` +
-      `• Cumulative Net Profit: **${totalProf.toLocaleString()}**\n` +
-      `• Cumulative Loss: **${totalLoss.toLocaleString()}**\n\n` +
-      `*Certified by Lead Statutory Auditor ${auditor.name} (${auditor.regNo}) · ${auditor.firm}.*`;
+      `Total Revenue: **₹${totalInc.toLocaleString()}** · Total Profit: **₹${totalProf.toLocaleString()}**`;
   }
 
-  return "I have reviewed the 10-year audit documents for this client. Please ask about any specific financial year (e.g. 'What was the profit in 2021?') or ask to schedule a Google Meet consultation.";
+  return `I have reviewed the 10-year audit records for **${params.clientName}**. Please ask for any financial year or metric.`;
 }
 
 /**
